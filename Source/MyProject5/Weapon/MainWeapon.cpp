@@ -6,4 +6,5 @@
 AMainWeapon::AMainWeapon()
 {
 	AttackPower = 30;
+	WeaponScale = FVector::One();
 }

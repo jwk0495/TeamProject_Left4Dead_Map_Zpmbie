@@ -14,5 +14,8 @@ class MYPROJECT5_API APlayerBase : public ACharacter
 public:
 	APlayerBase();
 
+protected:
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UStaticMeshComponent> WeaponComponent;
 
 };

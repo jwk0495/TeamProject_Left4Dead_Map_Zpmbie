@@ -18,7 +18,15 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 AttackPower = 0;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
+
+	FVector WeaponScale;
+
 public:
 	FORCEINLINE int32 GetAttackPower() const { return AttackPower; }
+	FORCEINLINE FVector GetWeaponScale() const { return WeaponScale; }
+
+	class UStaticMesh* GetWeaponStaticMesh();
 
 };

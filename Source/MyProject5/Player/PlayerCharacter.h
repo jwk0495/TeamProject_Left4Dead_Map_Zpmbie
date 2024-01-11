@@ -223,7 +223,7 @@ protected:
 	int32 MeleeAttackPower = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float KnuckbackPower = 1500.0f;
+	float KnuckbackPower = 15000.0f;
 
 	bool IsMeleeAttackDelay = false;
 	float MeleeAttackDelay = 1.0f;

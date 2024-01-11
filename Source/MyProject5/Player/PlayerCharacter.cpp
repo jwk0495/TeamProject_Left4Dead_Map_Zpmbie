@@ -9,6 +9,7 @@
 #include "Player/MyPlayerController.h"
 #include "Bullet/Bullet.h"
 #include "Components/CapsuleComponent.h"
+#include "Components/StaticMeshComponent.h"
 #include "Item/ItemBase.h"
 #include "Throwable/ThrowableWeaponBase.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -189,8 +190,6 @@ void APlayerCharacter::BeginPlay()
 	SetCurSubAmmo(MaxSubAmmo);
 	CurShootAccurancy = MaxShootAccurancy;
 
-	CurHand = EHandType::MainWeapon;
-
 	// Weapon Actor
 	FActorSpawnParameters Params;
 	Params.Owner = this;
@@ -202,6 +201,15 @@ void APlayerCharacter::BeginPlay()
 	MainWeapon->SetActorHiddenInGame(true);
 	SubWeapon = GetWorld()->SpawnActor<ASubWeapon>(SubWeaponClass, HandLocation, HandRotation, Params);
 	SubWeapon->SetActorHiddenInGame(true); 
+
+	// Init WeaponComponent
+	CurHand = EHandType::MainWeapon;
+	UStaticMesh* MainWeaponMesh = MainWeapon->GetWeaponStaticMesh();
+	if (MainWeaponMesh)
+	{
+		WeaponComponent->SetStaticMesh(MainWeaponMesh);
+		WeaponComponent->SetRelativeScale3D(MainWeapon->GetWeaponScale());
+	}
 }
 
 AMyPlayerController* APlayerCharacter::GetMyController()
@@ -334,6 +342,12 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 	}
 
 	CurHand = EHandType::MainWeapon;
+	UStaticMesh* MainWeaponMesh = MainWeapon->GetWeaponStaticMesh();
+	if (MainWeaponMesh)
+	{
+		WeaponComponent->SetStaticMesh(MainWeaponMesh);
+		WeaponComponent->SetRelativeScale3D(MainWeapon->GetWeaponScale());
+	}
 }
 
 void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
@@ -349,6 +363,12 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 
 	ZoomOut(FInputActionValue());
 	CurHand = EHandType::SubWeapon;
+	UStaticMesh* SubWeaponMesh = SubWeapon->GetWeaponStaticMesh();
+	if (SubWeaponMesh)
+	{
+		WeaponComponent->SetStaticMesh(SubWeaponMesh);
+		WeaponComponent->SetRelativeScale3D(SubWeapon->GetWeaponScale());
+	}
 }
 
 void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
@@ -364,6 +384,7 @@ void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
 
 	ZoomOut(FInputActionValue());
 	CurHand = EHandType::Grenade;
+	WeaponComponent->SetStaticMesh(nullptr);
 }
 
 void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction)
@@ -379,6 +400,7 @@ void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction
 
 	ZoomOut(FInputActionValue());
 	CurHand = EHandType::HealPack;
+	WeaponComponent->SetStaticMesh(nullptr);
 }
 
 void APlayerCharacter::ZoomIn(const FInputActionValue& InputAction)
@@ -472,8 +494,8 @@ void APlayerCharacter::MeleeAttack(const FInputActionValue& InputAction)
 				FVector DirectionVec = TargetLocation - MyLocation;
 				DirectionVec.Normalize();
 				Zombie->LaunchCharacter(DirectionVec * KnuckbackPower, true, false);
-				
-				
+
+				Zombie->OnKnuckback();
 				Zombie->OnDamaged(MeleeAttackPower);
 				UE_LOG(LogTemp, Log, TEXT("Melee Attack Hit: %d"), MeleeAttackPower);
 			}

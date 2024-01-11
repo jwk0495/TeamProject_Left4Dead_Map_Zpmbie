@@ -33,10 +33,21 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 AttackPower;
 
-	// Functions
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float MoveSpeed = 500.0f;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float KnuckbackTime = 1.0f;
+
+	FTimerHandle KnuckbackHandle;
+
+// Functions
 public:
 	UFUNCTION(BlueprintCallable)
 	void OnDamaged(int32 InDamage);
+
+	UFUNCTION(BlueprintCallable)
+	void OnKnuckback();
 
 	UFUNCTION(BlueprintImplementableEvent)
 	void OnDie();

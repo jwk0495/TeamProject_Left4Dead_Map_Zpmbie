@@ -30,6 +30,12 @@ APlayerBase::APlayerBase()
 	GetMesh()->SetAnimationMode(EAnimationMode::AnimationBlueprint);
 	GetMesh()->SetCollisionProfileName(TEXT("CharacterMesh"));
 
+	// Weapon Component
+	WeaponComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponComponent"));
+	WeaponComponent->SetupAttachment(GetMesh());
+	WeaponComponent->AddRelativeLocation(FVector(0, 30, 110));
+	WeaponComponent->SetCollisionProfileName(TEXT("NoCollision"));
+		
 	// Set SkeletalMesh & AnimInstance
 	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
 	if (MeshRef.Object)

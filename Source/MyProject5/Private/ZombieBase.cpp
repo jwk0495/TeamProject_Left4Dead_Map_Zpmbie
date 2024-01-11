@@ -2,6 +2,7 @@
 
 
 #include "ZombieBase.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AZombieBase::AZombieBase()
@@ -30,4 +31,20 @@ void AZombieBase::OnDamaged(int32 InDamage)
 
     if (CurHp == 0)
         OnDie();
+}
+
+void AZombieBase::OnKnuckback()
+{
+    GetCharacterMovement()->MaxWalkSpeed = 0;
+    if (KnuckbackHandle.IsValid())
+    {
+        GetWorld()->GetTimerManager().ClearTimer(KnuckbackHandle);
+    }
+
+    GetWorld()->GetTimerManager().SetTimer(KnuckbackHandle, FTimerDelegate::CreateLambda(
+        [&]()
+        {
+            GetCharacterMovement()->MaxWalkSpeed = MoveSpeed;
+        }
+    ), KnuckbackTime, false);
 }
