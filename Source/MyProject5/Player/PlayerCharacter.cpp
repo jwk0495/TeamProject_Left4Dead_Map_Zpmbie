@@ -473,6 +473,7 @@ void APlayerCharacter::MeleeAttack(const FInputActionValue& InputAction)
 				DirectionVec.Normalize();
 				Zombie->LaunchCharacter(DirectionVec * KnuckbackPower, true, false);
 				
+				
 				Zombie->OnDamaged(MeleeAttackPower);
 				UE_LOG(LogTemp, Log, TEXT("Melee Attack Hit: %d"), MeleeAttackPower);
 			}
