@@ -315,7 +315,7 @@ void APlayerCharacter::CrouchStart(const FInputActionValue& InputAction)
 	IsCrouching = true;
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
 	PlayerCamera->AddRelativeLocation(FVector(0, 0, -40));
-
+	WeaponComponent->AddRelativeLocation(FVector(0, 0, -40));
 }
 
 void APlayerCharacter::CrouchEnd(const FInputActionValue& InputAction)
@@ -328,6 +328,7 @@ void APlayerCharacter::CrouchEnd(const FInputActionValue& InputAction)
 	IsCrouching = false;
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
 	PlayerCamera->AddRelativeLocation(FVector(0, 0, 40));
+	WeaponComponent->AddRelativeLocation(FVector(0, 0, 40));
 }
 
 void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
