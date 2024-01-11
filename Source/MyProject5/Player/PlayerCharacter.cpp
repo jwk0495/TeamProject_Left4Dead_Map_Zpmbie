@@ -185,7 +185,7 @@ void APlayerCharacter::BeginPlay()
 	PlayerController->InitWidget(this);
 
 	// Status Init
-	SetHp(MaxHp / 2);
+	SetHp(MaxHp);
 	SetCurMainAmmo(MaxMainAmmo);
 	SetCurSubAmmo(MaxSubAmmo);
 	CurShootAccurancy = MaxShootAccurancy;
