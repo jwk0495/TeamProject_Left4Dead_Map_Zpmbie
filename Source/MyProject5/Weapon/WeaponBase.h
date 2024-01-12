@@ -21,6 +21,7 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
 
+	UPROPERTY(EditAnywhere)
 	FVector WeaponScale;
 
 public:

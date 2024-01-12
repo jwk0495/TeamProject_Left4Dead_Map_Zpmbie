@@ -32,7 +32,7 @@ APlayerBase::APlayerBase()
 
 	// Weapon Component
 	WeaponComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("WeaponComponent"));
-	WeaponComponent->SetupAttachment(GetMesh());
+	WeaponComponent->SetupAttachment(GetMesh(), TEXT("WeaponSocket"));
 	WeaponComponent->AddRelativeLocation(FVector(0, 30, 110));
 	WeaponComponent->SetCollisionProfileName(TEXT("NoCollision"));
 		

@@ -6,5 +6,5 @@
 ASubWeapon::ASubWeapon()
 {
 	AttackPower = 15;
-	WeaponScale = FVector(1, 1, 0.5f);
+	WeaponScale = FVector(0.4f, 0.4f, 0.4f);
 }

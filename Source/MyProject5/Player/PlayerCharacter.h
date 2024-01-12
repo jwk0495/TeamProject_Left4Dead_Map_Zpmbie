@@ -45,7 +45,7 @@ protected:
 	class AMyPlayerController* GetMyController();
 
 protected:
-	UPROPERTY()
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UCameraComponent> PlayerCamera;
 
 // Input Action

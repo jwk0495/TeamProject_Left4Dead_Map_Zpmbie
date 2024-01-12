@@ -22,7 +22,7 @@ APlayerCharacter::APlayerCharacter()
 	// Camera
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(RootComponent);
-	PlayerCamera->AddRelativeLocation(FVector(20, 0, 70));
+	PlayerCamera->AddRelativeLocation(FVector(30, 0, 70));
 	PlayerCamera->bUsePawnControlRotation = true;
 
 	// InputMapping
@@ -315,7 +315,7 @@ void APlayerCharacter::CrouchStart(const FInputActionValue& InputAction)
 	IsCrouching = true;
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
 	PlayerCamera->AddRelativeLocation(FVector(0, 0, -40));
-	WeaponComponent->AddRelativeLocation(FVector(0, 0, -40));
+	GetMesh()->AddRelativeLocation(FVector(0, 0, -40));
 }
 
 void APlayerCharacter::CrouchEnd(const FInputActionValue& InputAction)
@@ -328,7 +328,7 @@ void APlayerCharacter::CrouchEnd(const FInputActionValue& InputAction)
 	IsCrouching = false;
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
 	PlayerCamera->AddRelativeLocation(FVector(0, 0, 40));
-	WeaponComponent->AddRelativeLocation(FVector(0, 0, 40));
+	GetMesh()->AddRelativeLocation(FVector(0, 0, 40));
 }
 
 void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
@@ -613,8 +613,9 @@ void APlayerCharacter::OnDamaged(int32 InDamage)
 
 void APlayerCharacter::OnDie()
 {
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	IsDead = true;
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	StopShoot();
 
 	// Animation
 
