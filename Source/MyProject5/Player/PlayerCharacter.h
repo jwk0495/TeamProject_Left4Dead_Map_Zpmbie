@@ -149,11 +149,11 @@ protected:
 	UPROPERTY()
 	TObjectPtr<class ASubWeapon> SubWeapon;
 
-	// HandType
+// HandType
 protected:
 	EHandType CurHand;
 
-	// Shoot & Reload
+// Shoot & Reload
 protected:
 	UPROPERTY()
 	TSubclassOf<class ABullet> BulletClass;
@@ -165,9 +165,11 @@ protected:
 	bool IsFiring = false;
 	bool IsZooming = false;
 	float FireDelayTime = 0.12f;
-	float ReloadDelayTime = 1.5f;
 	float MuzzleOffsetZInNormal = 70.0f;
 	float MuzzleOffsetZInCrouch = 35.0f;
+
+	UPROPERTY(EditAnywhere)
+	float ReloadDelayTime = 1.5f;
 
 	float ZoomInFov = 60.0f;
 	float ZoomOutFov = 90.0f;
@@ -192,6 +194,9 @@ protected:
 	void Shoot();
 	void StopShoot();
 	void ReloadComplete();
+
+public:
+	FORCEINLINE uint8 GetIsFiring() { return IsFiring; }
 
 // Recoil
 protected:
@@ -303,4 +308,12 @@ public:
 protected:
 	void ShowProcessUI();
 
+
+// Animation
+protected:
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UAnimMontage> RifleFireMontage;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UAnimMontage> RifleReloadMontage;
 };

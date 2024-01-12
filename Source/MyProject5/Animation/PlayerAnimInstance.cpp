@@ -3,6 +3,7 @@
 
 #include "Animation/PlayerAnimInstance.h"
 #include "GameFramework/Character.h"
+#include "Player/PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 UPlayerAnimInstance::UPlayerAnimInstance()
@@ -16,7 +17,7 @@ void UPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
-	OwningPlayer = Cast<ACharacter>(GetOwningActor());
+	OwningPlayer = Cast<APlayerCharacter>(GetOwningActor());
 	if (OwningPlayer)
 	{
 		PlayerMovement = OwningPlayer->GetCharacterMovement();
@@ -37,4 +38,5 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsIdle = (GroundSpeed < MoveThreshold);
 	bIsFalling = PlayerMovement->IsFalling();
 	bIsJumping = (bIsFalling & (MoveVelocity.Z > JumpThreshold));
+	bIsFiring = OwningPlayer->GetIsFiring();
 }

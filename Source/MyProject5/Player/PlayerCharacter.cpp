@@ -135,6 +135,18 @@ APlayerCharacter::APlayerCharacter()
 	{
 		SubWeaponClass = SubWeaponRef.Class;
 	}
+
+	// Animation Montage
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> RifleFireMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/Animation/AM_RifleFire.AM_RifleFire'"));
+	if (RifleFireMontageRef.Object)
+	{
+		RifleFireMontage = RifleFireMontageRef.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> RifleReloadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/Animation/AM_Reload.AM_Reload'"));
+	if (RifleReloadMontageRef.Object)
+	{
+		RifleReloadMontage = RifleReloadMontageRef.Object;
+	}
 }
 
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -308,6 +320,11 @@ void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, this, &APlayerCharacter::ReloadComplete, ReloadDelayTime, false);
 	UE_LOG(LogTemp, Log, TEXT("Reload"));
+
+	// Animation
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(RifleReloadMontage);
 }
 
 void APlayerCharacter::CrouchStart(const FInputActionValue& InputAction)
@@ -725,6 +742,11 @@ void APlayerCharacter::OneShot()
 
 	AddControllerPitchInput(RecoilVec.Z);
 	AddControllerYawInput(RecoilVec.X);
+
+	// Animation
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(RifleFireMontage);
 }
 
 void APlayerCharacter::Shoot()

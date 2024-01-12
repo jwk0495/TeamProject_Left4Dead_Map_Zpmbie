@@ -22,7 +22,7 @@ protected:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
-	TObjectPtr<class ACharacter> OwningPlayer;
+	TObjectPtr<class APlayerCharacter> OwningPlayer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	TObjectPtr<class UCharacterMovementComponent> PlayerMovement;
@@ -51,5 +51,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	uint8 bIsFalling : 1;
 	
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	uint8 bIsFiring : 1;
 };

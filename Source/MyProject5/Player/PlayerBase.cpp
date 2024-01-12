@@ -49,6 +49,11 @@ APlayerBase::APlayerBase()
 		GetMesh()->SetAnimInstanceClass(AnimRef.Class);
 	}
 
-	
+	// Anim Instance
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Game/PKH/Animation/ABP_PlayerAnimInstance.ABP_PlayerAnimInstance_C"));
+	if (AnimInstanceRef.Class)
+	{
+		GetMesh()->SetAnimClass(AnimInstanceRef.Class);
+	}
 }
 
