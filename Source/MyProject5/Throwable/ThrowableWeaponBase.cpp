@@ -8,6 +8,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "public/ZombieBase.h"
+#include "Components/PointLightComponent.h"
 
 // Sets default values
 AThrowableWeaponBase::AThrowableWeaponBase()
@@ -43,6 +44,11 @@ AThrowableWeaponBase::AThrowableWeaponBase()
 	{
 		ParticleComponent->SetTemplate(ParticleRef.Object);
 	}
+
+	// Light
+	LightComponent = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
+	LightComponent->SetupAttachment(SphereComponent);
+	LightComponent->SetIntensity(0);
 }
 
 void AThrowableWeaponBase::BeginPlay()
@@ -84,12 +90,24 @@ void AThrowableWeaponBase::Explode()
 		}
 	}
 	
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
+	// Destroy
+	FTimerHandle DestroyHandle;
+	GetWorld()->GetTimerManager().SetTimer(DestroyHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			Destroy();
 		}
-	), 1.0f, false);
+	), 2.0f, false);
+
+	// Light
+	LightComponent->SetIntensity(MaxIntensity);
+
+	FTimerHandle LightHandle;
+	GetWorld()->GetTimerManager().SetTimer(LightHandle, FTimerDelegate::CreateLambda(
+		[&]() {
+			LightComponent->SetIntensity(MaxIntensity - DeltaLightIntensity * count);
+			count++;
+		}
+	), 0.05f, true);
 }
 
 

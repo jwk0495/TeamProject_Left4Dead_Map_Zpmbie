@@ -45,6 +45,37 @@ void UAmmoCountWidget::UpdateHealPackCount(int32 NewRemainHealPack)
 	HealPackText->SetText(FText::FromString(FString::Printf(TEXT("%d"), NewRemainHealPack)));
 }
 
+void UAmmoCountWidget::UpdateAmmoUIColor(EHandType NewHandType)
+{
+	switch (NewHandType)
+	{
+	case EHandType::MainWeapon:
+		MainAmmoText->SetColorAndOpacity(FLinearColor(0.3f, 1, 0));
+		SubAmmoText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		GrenadeText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		HealPackText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		break;
+	case EHandType::SubWeapon:
+		MainAmmoText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		SubAmmoText->SetColorAndOpacity(FLinearColor(0.3f, 1, 0));
+		GrenadeText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		HealPackText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		break;
+	case EHandType::Grenade:
+		MainAmmoText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		SubAmmoText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		GrenadeText->SetColorAndOpacity(FLinearColor(0.3f, 1, 0));
+		HealPackText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		break;
+	case EHandType::HealPack:
+		MainAmmoText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		SubAmmoText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		GrenadeText->SetColorAndOpacity(FLinearColor(1, 1, 1));
+		HealPackText->SetColorAndOpacity(FLinearColor(0.3f, 1, 0));
+		break;
+	}
+}
+
 void UAmmoCountWidget::SetDelegate(APlayerCharacter* PlayerCharacter)
 {
 	// Delegate Bind

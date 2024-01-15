@@ -21,6 +21,18 @@ void UHpBarWidget::NativeConstruct()
 void UHpBarWidget::UpdateHpBar(float HpRate)
 {
 	HpBarWidget->SetPercent(HpRate);
+	if (HpRate > 0.55f)
+	{
+		HpBarWidget->SetFillColorAndOpacity(FLinearColor(0, 1, 0));
+	}
+	else if (HpRate > 0.3f)
+	{
+		HpBarWidget->SetFillColorAndOpacity(FLinearColor(1, 0.25f, 0));
+	}
+	else
+	{
+		HpBarWidget->SetFillColorAndOpacity(FLinearColor(1, 0, 0));
+	}
 }
 
 void UHpBarWidget::SetDelegate(APlayerCharacter* PlayerCharacter)

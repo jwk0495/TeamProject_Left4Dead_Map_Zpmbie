@@ -22,12 +22,20 @@ protected:
 	TObjectPtr<UStaticMeshComponent> WeaponMeshComponent;
 
 	UPROPERTY(EditAnywhere)
+	FVector WeaponLocation;
+
+	UPROPERTY(EditAnywhere)
 	FVector WeaponScale;
+
+	UPROPERTY(EditAnywhere)
+	FRotator WeaponRotation;
 
 public:
 	FORCEINLINE int32 GetAttackPower() const { return AttackPower; }
+	
+	FORCEINLINE FVector GetWeaponLocation() const { return WeaponLocation; }
+	FORCEINLINE FRotator GetWeaponRotation() const { return WeaponRotation; }
 	FORCEINLINE FVector GetWeaponScale() const { return WeaponScale; }
 
 	class UStaticMesh* GetWeaponStaticMesh();
-
 };

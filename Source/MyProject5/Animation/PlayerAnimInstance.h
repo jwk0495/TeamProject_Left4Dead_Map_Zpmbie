@@ -53,4 +53,7 @@ protected:
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	uint8 bIsFiring : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	uint8 bIsMainWeapon: 1;
 };

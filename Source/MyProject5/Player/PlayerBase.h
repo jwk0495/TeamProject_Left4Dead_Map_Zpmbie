@@ -6,6 +6,16 @@
 #include "GameFramework/Character.h"
 #include "PlayerBase.generated.h"
 
+UENUM()
+enum class EHandType : uint8
+{
+	None = 0,
+	MainWeapon,
+	SubWeapon,
+	Grenade,
+	HealPack
+};
+
 UCLASS()
 class MYPROJECT5_API APlayerBase : public ACharacter
 {
@@ -17,5 +27,8 @@ public:
 protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UStaticMeshComponent> WeaponComponent;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UParticleSystemComponent> GunShotParticleComponent;
 
 };

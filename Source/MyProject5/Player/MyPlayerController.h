@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Player/PlayerBase.h"
 #include "MyPlayerController.generated.h"
 
 /**
@@ -68,6 +69,8 @@ public:
 	void InitWidget(class APlayerCharacter* InPlayerCharacter);
 
 	void ShowProcessUI(FText Text, float Time);
+
+	void UpdateAmmoUIColor(EHandType NewHandType);
 
 	void GameOver();
 };

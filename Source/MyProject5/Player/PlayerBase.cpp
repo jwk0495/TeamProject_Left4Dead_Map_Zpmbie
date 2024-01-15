@@ -4,6 +4,8 @@
 #include "Player/PlayerBase.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Particles/ParticleSystem.h"
+#include "Particles/ParticleSystemComponent.h"
 
 // Sets default values
 APlayerBase::APlayerBase()
@@ -37,23 +39,27 @@ APlayerBase::APlayerBase()
 	WeaponComponent->SetCollisionProfileName(TEXT("NoCollision"));
 		
 	// Set SkeletalMesh & AnimInstance
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Quinn.SKM_Quinn'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> MeshRef(TEXT("/Script/Engine.SkeletalMesh'/Game/Characters/Mannequins/Meshes/SKM_Manny.SKM_Manny'"));
 	if (MeshRef.Object)
 	{
 		GetMesh()->SetSkeletalMesh(MeshRef.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimRef(TEXT("/Game/Characters/Mannequins/Animations/ABP_Quinn.ABP_Quinn_C"));
-	if (AnimRef.Class)
-	{
-		GetMesh()->SetAnimInstanceClass(AnimRef.Class);
-	}
-
-	// Anim Instance
-	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Game/PKH/Animation/ABP_PlayerAnimInstance.ABP_PlayerAnimInstance_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> AnimInstanceRef(TEXT("/Game/PKH/AnimationStarter/ABP_Player.ABP_Player_C"));
 	if (AnimInstanceRef.Class)
 	{
 		GetMesh()->SetAnimClass(AnimInstanceRef.Class);
+	}
+
+	// GunShot Particle
+	GunShotParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("GunShotParticle"));
+	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
+	GunShotParticleComponent->bAutoActivate = false;
+	GunShotParticleComponent->bAutoDestroy = true;
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleRef(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Fire.P_Fire'"));
+	if (ParticleRef.Object)
+	{
+		GunShotParticleComponent->SetTemplate(ParticleRef.Object);
 	}
 }
 

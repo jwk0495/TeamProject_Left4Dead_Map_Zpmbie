@@ -30,10 +30,17 @@ protected:
 	TObjectPtr<class UParticleSystemComponent> ParticleComponent;
 
 	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UPointLightComponent> LightComponent;
+
+	UPROPERTY(EditAnywhere)
 	int32 AttackPower = 0;
 
 	float ExplodeDelay = 3.0f;
 	float ExplodeRadius = 300.0f;
+
+	float MaxIntensity = 100000;
+	float DeltaLightIntensity = 10000;
+	int32 count = 1;
 
 public:
 	void Throw(FVector DirectionVec);

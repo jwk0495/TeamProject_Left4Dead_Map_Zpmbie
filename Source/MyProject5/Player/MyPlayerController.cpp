@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Player/MyPlayerController.h"
 #include "UI/HpBarWidget.h"
 #include "UI/AmmoCountWidget.h"
@@ -114,6 +113,11 @@ void AMyPlayerController::ShowProcessUI(FText Text, float Time)
 			ProcessUIWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	), Time, false);
+}
+
+void AMyPlayerController::UpdateAmmoUIColor(EHandType NewHandType)
+{
+	AmmoCount->UpdateAmmoUIColor(NewHandType);
 }
 
 void AMyPlayerController::GameOver()

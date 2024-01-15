@@ -16,6 +16,8 @@
 #include "Weapon/MainWeapon.h"
 #include "Weapon/SubWeapon.h"
 #include "public/ZombieBase.h"
+#include "Engine/StaticMeshSocket.h"
+#include "Particles/ParticleSystemComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -137,15 +139,25 @@ APlayerCharacter::APlayerCharacter()
 	}
 
 	// Animation Montage
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> RifleFireMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/Animation/AM_RifleFire.AM_RifleFire'"));
-	if (RifleFireMontageRef.Object)
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ThrowGrenadeMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/Animation/AM_Throw.AM_Throw'"));
+	if (ThrowGrenadeMontageRef.Object)
 	{
-		RifleFireMontage = RifleFireMontageRef.Object;
+		ThrowGrenadeMontage = ThrowGrenadeMontageRef.Object;
 	}
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> RifleReloadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/Animation/AM_Reload.AM_Reload'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> RifleReloadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_RifleReload.AM_RifleReload'"));
 	if (RifleReloadMontageRef.Object)
 	{
 		RifleReloadMontage = RifleReloadMontageRef.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> PistolReloadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_PistolReload.AM_PistolReload'"));
+	if (PistolReloadMontageRef.Object)
+	{
+		PistolReloadMontage = PistolReloadMontageRef.Object;
+	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_Dead.AM_Dead'"));
+	if (DeadMontageRef.Object)
+	{
+		DeadMontage = DeadMontageRef.Object;
 	}
 }
 
@@ -220,8 +232,13 @@ void APlayerCharacter::BeginPlay()
 	if (MainWeaponMesh)
 	{
 		WeaponComponent->SetStaticMesh(MainWeaponMesh);
+		WeaponComponent->SetRelativeLocation(MainWeapon->GetWeaponLocation());
 		WeaponComponent->SetRelativeScale3D(MainWeapon->GetWeaponScale());
+		WeaponComponent->SetRelativeRotation(MainWeapon->GetWeaponRotation());
 	}
+
+	GetMyController()->UpdateAmmoUIColor(CurHand);
+	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 }
 
 AMyPlayerController* APlayerCharacter::GetMyController()
@@ -315,24 +332,27 @@ void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 	}
 
 	IsReloading = true;
-	ShowProcessUI();
 
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, this, &APlayerCharacter::ReloadComplete, ReloadDelayTime, false);
-	UE_LOG(LogTemp, Log, TEXT("Reload"));
 
 	// Animation
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->StopAllMontages(0.0f);
-	AnimInstance->Montage_Play(RifleReloadMontage);
+	if (CurHand == EHandType::MainWeapon)
+	{
+		PlayMontage(RifleReloadMontage);
+	}
+	else
+	{
+		PlayMontage(PistolReloadMontage);
+	}
 }
 
 void APlayerCharacter::CrouchStart(const FInputActionValue& InputAction)
 {
 	IsCrouching = true;
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
-	PlayerCamera->AddRelativeLocation(FVector(0, 0, -40));
 	GetMesh()->AddRelativeLocation(FVector(0, 0, -40));
+	PlayerCamera->AddRelativeLocation(FVector(0, 0, -100));
 }
 
 void APlayerCharacter::CrouchEnd(const FInputActionValue& InputAction)
@@ -344,8 +364,8 @@ void APlayerCharacter::CrouchEnd(const FInputActionValue& InputAction)
 
 	IsCrouching = false;
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
-	PlayerCamera->AddRelativeLocation(FVector(0, 0, 40));
 	GetMesh()->AddRelativeLocation(FVector(0, 0, 40));
+	PlayerCamera->AddRelativeLocation(FVector(0, 0, 100));
 }
 
 void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
@@ -364,8 +384,13 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 	if (MainWeaponMesh)
 	{
 		WeaponComponent->SetStaticMesh(MainWeaponMesh);
+		WeaponComponent->SetRelativeLocation(MainWeapon->GetWeaponLocation());
+		WeaponComponent->SetRelativeRotation(MainWeapon->GetWeaponRotation());
 		WeaponComponent->SetRelativeScale3D(MainWeapon->GetWeaponScale());
 	}
+
+	GetMyController()->UpdateAmmoUIColor(CurHand);
+	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 }
 
 void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
@@ -385,8 +410,13 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 	if (SubWeaponMesh)
 	{
 		WeaponComponent->SetStaticMesh(SubWeaponMesh);
+		WeaponComponent->SetRelativeLocation(SubWeapon->GetWeaponLocation());
+		WeaponComponent->SetRelativeRotation(SubWeapon->GetWeaponRotation());
 		WeaponComponent->SetRelativeScale3D(SubWeapon->GetWeaponScale());
 	}
+
+	GetMyController()->UpdateAmmoUIColor(CurHand);
+	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 }
 
 void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
@@ -403,6 +433,8 @@ void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
 	ZoomOut(FInputActionValue());
 	CurHand = EHandType::Grenade;
 	WeaponComponent->SetStaticMesh(nullptr);
+
+	GetMyController()->UpdateAmmoUIColor(CurHand);
 }
 
 void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction)
@@ -419,6 +451,8 @@ void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction
 	ZoomOut(FInputActionValue());
 	CurHand = EHandType::HealPack;
 	WeaponComponent->SetStaticMesh(nullptr);
+
+	GetMyController()->UpdateAmmoUIColor(CurHand);
 }
 
 void APlayerCharacter::ZoomIn(const FInputActionValue& InputAction)
@@ -469,11 +503,14 @@ void APlayerCharacter::Heal(const FInputActionValue& InputAction)
 	SetRemainHealPack(RemainHealPack - 1);
 	ShowProcessUI();
 
+	PlayerCamera->AddRelativeLocation(FVector(-200, 0, 80));
+
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
 		[&]() {
 			SetHp(CurHp + HealRate * MaxHp);
 			IsHealing = false;
+			PlayerCamera->AddRelativeLocation(FVector(200, 0, -80));
 			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		}), HealDelayTime, false);
 }
@@ -492,7 +529,7 @@ void APlayerCharacter::MeleeAttack(const FInputActionValue& InputAction)
 	}
 
 	const FVector ForwardVec = FRotationMatrix(Controller->GetControlRotation()).GetUnitAxis(EAxis::X);
-	FVector AttackCenterVec = GetActorLocation() + MeleeAttackMuzzleOffset + ForwardVec * GetCapsuleComponent()->GetUnscaledCapsuleRadius() * 3.0f;
+	FVector AttackCenterVec = GetActorLocation() + MeleeAttackMuzzleOffset + ForwardVec * GetCapsuleComponent()->GetUnscaledCapsuleRadius() * 1.5f;
 	
 	TArray<FOverlapResult> OverlapResults;
 	bool IsHitted = GetWorld()->OverlapMultiByChannel(OverlapResults, AttackCenterVec, FQuat::MakeFromRotator(GetController()->GetControlRotation()),
@@ -624,6 +661,11 @@ int APlayerCharacter::SetRemainHealPack(int32 NewRemainHealPack)
 
 void APlayerCharacter::OnDamaged(int32 InDamage)
 {
+	if (IsDead)
+	{
+		return;
+	}
+
 	SetHp(CurHp - InDamage);
 	UE_LOG(LogTemp, Log, TEXT("OnDamaged: %d"), InDamage);
 }
@@ -635,7 +677,7 @@ void APlayerCharacter::OnDie()
 	StopShoot();
 
 	// Animation
-
+	PlayMontage(DeadMontage);
 
 	// GameOver UI
 	GetMyController()->GameOver();
@@ -651,6 +693,13 @@ void APlayerCharacter::ShowProcessUI()
 	{
 		GetMyController()->ShowProcessUI(FText::FromString(TEXT("Healing...")), HealDelayTime);
 	}
+}
+
+void APlayerCharacter::PlayMontage(UAnimMontage* NewMontage)
+{
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	AnimInstance->Montage_Play(NewMontage);
 }
 
 void APlayerCharacter::SetShootAccurancy(float NewShootAccurancy)
@@ -698,24 +747,27 @@ void APlayerCharacter::OneShot()
 	{
 		return;
 	}
+	
+	FVector FireSocketLocation = WeaponComponent->GetSocketLocation(TEXT("FireSocket")); 
+	FRotator FireSocketRotator = WeaponComponent->GetSocketRotation(TEXT("FireSocket"));
 
-	const FVector MuzzleLocation = GetActorLocation() + FVector(0, 0, GetMuzzleOffsetZ()) + (GetActorForwardVector() * (GetCapsuleComponent()->GetUnscaledCapsuleRadius()));
-	const FRotator MuzzleRotator = FRotationMatrix::MakeFromX(GetActorForwardVector()).Rotator();
+	const FVector MuzzleLocation = FireSocketLocation;
+	const FRotator MuzzleRotator = FireSocketRotator;
 
-	const FRotator ControllerRotator = Controller->GetControlRotation();
-	const FVector ControllerForwardVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::X);
-	const FVector ControllerRightVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::Y);
-	const FVector ControllerUpVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::Z);
+	const FRotator ControllerRotator = FireSocketRotator;
+	const FVector FireSocketForwardVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::X);
+	const FVector FireSocketRightVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::Y);
+	const FVector FireSocketUpVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::Z);
 
 	FActorSpawnParameters Params;
 	Params.Owner = this;
 	Params.Instigator = GetInstigator();
-	FVector FireDirectionVec = ControllerForwardVec;
+	FVector FireDirectionVec = FireSocketForwardVec;
 
 	float XOffset = FMath::RandRange(-1, 1) > 0 ? (1 - CurShootAccurancy) : -(1 - CurShootAccurancy);
 	float YOffset = FMath::RandRange(-1, 1) > 0 ? (1 - CurShootAccurancy) : -(1 - CurShootAccurancy);
-	FireDirectionVec = FireDirectionVec.RotateAngleAxis(XOffset * ShootAccurancyValue, ControllerRightVec);
-	FireDirectionVec = FireDirectionVec.RotateAngleAxis(YOffset * ShootAccurancyValue, ControllerUpVec);
+	FireDirectionVec = FireDirectionVec.RotateAngleAxis(XOffset * ShootAccurancyValue, FireSocketRightVec);
+	FireDirectionVec = FireDirectionVec.RotateAngleAxis(YOffset * ShootAccurancyValue, FireSocketUpVec);
 	
 	ABullet* Projectile = GetWorld()->SpawnActor<ABullet>(BulletClass, MuzzleLocation, MuzzleRotator, Params);
 	if (Projectile)
@@ -732,7 +784,7 @@ void APlayerCharacter::OneShot()
 		SetCurSubAmmo(CurSubAmmo - 1);;
 	}
 
-	// accurancy
+	// Accurancy
 	SetShootAccurancy(CurShootAccurancy - GetShootDeltaAccurancy());
 
 	// recoil 
@@ -743,10 +795,8 @@ void APlayerCharacter::OneShot()
 	AddControllerPitchInput(RecoilVec.Z);
 	AddControllerYawInput(RecoilVec.X);
 
-	// Animation
-	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
-	AnimInstance->StopAllMontages(0.0f);
-	AnimInstance->Montage_Play(RifleFireMontage);
+	// Particle
+	//GunShotParticleComponent->SetActive(true);
 }
 
 void APlayerCharacter::Shoot()
@@ -859,6 +909,9 @@ void APlayerCharacter::ThrowGrenade()
 		{
 			IsThrowing = false;
 		}, 1.0f, false, ThrowDelay);
+
+	// Animation
+	PlayMontage(ThrowGrenadeMontage);
 }
 
 void APlayerCharacter::SetNearbyItem(AItemBase* InItem)

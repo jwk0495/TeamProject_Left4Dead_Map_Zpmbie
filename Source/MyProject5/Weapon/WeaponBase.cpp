@@ -3,6 +3,7 @@
 
 #include "Weapon/WeaponBase.h"
 #include "Components/StaticMeshComponent.h"
+#include "Engine/StaticMeshSocket.h"
 #include "Components/SceneComponent.h"
 
 // Sets default values
@@ -24,4 +25,3 @@ UStaticMesh* AWeaponBase::GetWeaponStaticMesh()
 	}
 	return nullptr;
 }
-

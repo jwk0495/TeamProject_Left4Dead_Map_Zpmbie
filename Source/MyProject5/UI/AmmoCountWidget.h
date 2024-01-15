@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "Player/PlayerBase.h"
 #include "AmmoCountWidget.generated.h"
 
 /**
@@ -44,6 +45,8 @@ public:
 
 	UFUNCTION()
 	void UpdateHealPackCount(int32 NewRemainGrenade);
+
+	void UpdateAmmoUIColor(EHandType NewHandType);
 
 	void SetDelegate(class APlayerCharacter* PlayerCharacter);
 };

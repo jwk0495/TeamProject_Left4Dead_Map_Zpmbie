@@ -15,16 +15,6 @@ DECLARE_DELEGATE_OneParam(FOnHealPackChangedDelegate, int /*RemainHealPack*/);
 DECLARE_DELEGATE_OneParam(FOnShootAccurancyChangedDelegate, float /*ShootAccurancy*/);
 DECLARE_DELEGATE_TwoParams(FOnNearbyItemChangedDelegate, bool /*IsExist*/, FText /*NewItemText*/);
 
-UENUM()
-enum class EHandType : uint8
-{
-	None = 0,
-	MainWeapon,
-	SubWeapon,
-	Grenade,
-	HealPack
-};
-
 /**
  * 
  */
@@ -197,6 +187,7 @@ protected:
 
 public:
 	FORCEINLINE uint8 GetIsFiring() { return IsFiring; }
+	FORCEINLINE uint8 GetIsMainWeapon() { return CurHand == EHandType::MainWeapon; }
 
 // Recoil
 protected:
@@ -231,7 +222,7 @@ protected:
 	float KnuckbackPower = 15000.0f;
 
 	bool IsMeleeAttackDelay = false;
-	float MeleeAttackDelay = 1.0f;
+	float MeleeAttackDelay = 0.6f;
 
 // Nearby Item
 protected:
@@ -312,8 +303,16 @@ protected:
 // Animation
 protected:
 	UPROPERTY(VisibleAnywhere)
-	TObjectPtr<class UAnimMontage> RifleFireMontage;
+	TObjectPtr<class UAnimMontage> ThrowGrenadeMontage;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UAnimMontage> RifleReloadMontage;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UAnimMontage> PistolReloadMontage;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UAnimMontage> DeadMontage;
+
+	void PlayMontage(class UAnimMontage* NewMontage);
 };

@@ -40,13 +40,16 @@ public:
 	FORCEINLINE FItemData GetItemData() const { return ItemData; };
 
 protected:
-	FItemData ItemData;
-
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class USphereComponent> SphereComponent;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UStaticMeshComponent> Mesh;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UMaterialInterface> OverlayMaterial;
+
+	FItemData ItemData;
 
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
