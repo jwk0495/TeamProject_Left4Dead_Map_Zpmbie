@@ -17,3 +17,13 @@ AMyGameMode::AMyGameMode()
 		PlayerControllerClass = ControllerRef.Class;
 	}
 }
+
+void AMyGameMode::BeginPlay()
+{
+	// Add time per second
+	FTimerHandle Handle;
+	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
+		[&]() {
+			SurvivalTime++;
+		}),1.0f, true, 1.0f);
+}

@@ -202,13 +202,14 @@ protected:
 	bool IsThrowing = false; 
 	float ThrowDelay = 1.5f;
 
+public:
 	void ThrowGrenade();
 
 // HealPack
 protected:
 	bool IsHealing = false;
 	float HealDelayTime = 4.0f;
-	float HealRate = 0.3f;
+	float HealRate = 0.6f;
 
 // Melee Attack
 protected:
@@ -219,7 +220,7 @@ protected:
 	int32 MeleeAttackPower = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float KnuckbackPower = 15000.0f;
+	float KnuckbackPower = 500.0f;
 
 	bool IsMeleeAttackDelay = false;
 	float MeleeAttackDelay = 0.6f;
@@ -232,6 +233,9 @@ protected:
 public:
 	void SetNearbyItem(class AItemBase* InItem);
 	void RemoveNearbyItem(class AItemBase* OutItem);
+
+public:
+	void GameClear();
 
 // Status
 protected:

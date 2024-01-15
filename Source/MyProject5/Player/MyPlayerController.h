@@ -64,6 +64,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UGameOverUIWidget> GameOverUIWidget;
 
+	// GameClear UI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UGameClearWidget> GameClearUIClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UGameClearWidget> GameClearUIWidget;
+
 
 public:
 	void InitWidget(class APlayerCharacter* InPlayerCharacter);
@@ -73,4 +80,6 @@ public:
 	void UpdateAmmoUIColor(EHandType NewHandType);
 
 	void GameOver();
+
+	void GameClear();
 };

@@ -16,4 +16,17 @@ class MYPROJECT5_API AMyGameMode : public AGameModeBase
 	
 public:
 	AMyGameMode();
+
+protected:
+	virtual void BeginPlay() override;
+
+	int32 SurvivalTime = 0;
+	int32 KillCount = 0;
+
+public:
+	UFUNCTION(BlueprintCallable)
+	FORCEINLINE void KillCountPlus() { KillCount++; }
+
+	FORCEINLINE int32 GetSurvivalTime() const { return SurvivalTime; }
+	FORCEINLINE int32 GetKillCount() const { return KillCount; }
 };

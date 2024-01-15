@@ -7,6 +7,9 @@
 #include "UI/ProcessUIWidget.h"
 #include "UI/GameOverUIWidget.h"
 #include "UI/NearbyItemWidget.h"
+#include "UI/GameClearWidget.h"
+#include "Kismet/GameplayStatics.h"
+#include "Game/MyGameMode.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -44,6 +47,12 @@ AMyPlayerController::AMyPlayerController()
 	if (GameOverUIRef.Class)
 	{
 		GameOverUIClass = GameOverUIRef.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<UGameClearWidget> GameClearUIRef(TEXT("/Game/PKH/UI/WBP_GameClearUI.WBP_GameClearUI_C"));
+	if (GameClearUIRef.Class)
+	{
+		GameClearUIClass = GameClearUIRef.Class;
 	}
 }
 
@@ -92,6 +101,13 @@ void AMyPlayerController::BeginPlay()
 		GameOverUIWidget->AddToViewport();
 		GameOverUIWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	GameClearUIWidget = CreateWidget<UGameClearWidget>(this, GameClearUIClass);
+	if (GameClearUIWidget)
+	{
+		GameClearUIWidget->AddToViewport();
+		GameClearUIWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void AMyPlayerController::InitWidget(APlayerCharacter* InPlayerCharacter)
@@ -131,6 +147,26 @@ void AMyPlayerController::GameOver()
 
 	// Show GameOver UI
 	GameOverUIWidget->SetVisibility(ESlateVisibility::Visible);
+
+	// InputMode change
+	FInputModeUIOnly GameMode;
+	SetInputMode(GameMode);
+	SetShowMouseCursor(true);
+}
+
+void AMyPlayerController::GameClear()
+{
+	// Hide some UI
+	if (ProcessUIWidget->GetVisibility() == ESlateVisibility::Visible)
+	{
+		ProcessUIWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
+	CrosshairWidget->SetVisibility(ESlateVisibility::Hidden);
+
+	// Show GameClear UI
+	AMyGameMode* Mode = Cast<AMyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	GameClearUIWidget->SetClearUI(Mode->GetSurvivalTime(), Mode->GetKillCount());
+	GameClearUIWidget->SetVisibility(ESlateVisibility::Visible);
 
 	// InputMode change
 	FInputModeUIOnly GameMode;

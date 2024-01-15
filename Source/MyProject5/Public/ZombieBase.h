@@ -49,7 +49,7 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void OnKnuckback();
 
-	UFUNCTION(BlueprintImplementableEvent)
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
 	void OnDie();
 
 };

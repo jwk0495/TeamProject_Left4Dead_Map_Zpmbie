@@ -139,7 +139,7 @@ APlayerCharacter::APlayerCharacter()
 	}
 
 	// Animation Montage
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> ThrowGrenadeMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/Animation/AM_Throw.AM_Throw'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ThrowGrenadeMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_ThrowGrenade.AM_ThrowGrenade'"));
 	if (ThrowGrenadeMontageRef.Object)
 	{
 		ThrowGrenadeMontage = ThrowGrenadeMontageRef.Object;
@@ -290,7 +290,7 @@ void APlayerCharacter::Attack(const FInputActionValue& InputAction)
 		OneShot();
 		break;
 	case EHandType::Grenade:
-		ThrowGrenade();
+		PlayMontage(ThrowGrenadeMontage);
 		break;
 	case EHandType::HealPack:
 
@@ -909,9 +909,6 @@ void APlayerCharacter::ThrowGrenade()
 		{
 			IsThrowing = false;
 		}, 1.0f, false, ThrowDelay);
-
-	// Animation
-	PlayMontage(ThrowGrenadeMontage);
 }
 
 void APlayerCharacter::SetNearbyItem(AItemBase* InItem)
@@ -929,4 +926,9 @@ void APlayerCharacter::RemoveNearbyItem(AItemBase* OutItem)
 	}
 	NearbyItem = nullptr;
 	OnNearbyItemChanged.ExecuteIfBound(false, FText());
+}
+
+void APlayerCharacter::GameClear()
+{
+	GetMyController()->GameClear();
 }
