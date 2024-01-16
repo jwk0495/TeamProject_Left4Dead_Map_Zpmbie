@@ -167,10 +167,10 @@ protected:
 	// Shoot Accurancy
 	float CurShootAccurancy = 1.0f;
 	float MaxShootAccurancy = 1.0f;
-	float DeltaShootAccurancyMainWeapon = 0.025f;
-	float DeltaShootAccurancySubweapon = 0.2f;
+	float DeltaShootAccurancyMainWeapon = 0.005f;
+	float DeltaShootAccurancySubweapon = 0.05f;
 	float DeltaShootAccurancyRateInZoom = 0.5f;
-	float DeltaShootAccurancyRecovery = 0.05f;
+	float DeltaShootAccurancyRecovery = 0.025f;
 	float ShootAccurancyValue = 0.75f;
 
 	void SetShootAccurancy(float NewShootAccurancy);
@@ -183,17 +183,20 @@ protected:
 	void OneShot();
 	void Shoot();
 	void StopShoot();
+
+public:
 	void ReloadComplete();
 
 public:
-	FORCEINLINE uint8 GetIsFiring() { return IsFiring; }
-	FORCEINLINE uint8 GetIsMainWeapon() { return CurHand == EHandType::MainWeapon; }
+	FORCEINLINE uint8 GetIsDead() const { return IsDead; }
+	FORCEINLINE uint8 GetIsFiring() const { return IsFiring; }
+	FORCEINLINE uint8 GetIsMainWeapon() const { return CurHand == EHandType::MainWeapon; }
 
 // Recoil
 protected:
 	float RecoilOffsetInNormal = 0.4f;
 	float RecoilOffsetInZoom = 0.2f;
-
+	
 // Grenade
 protected:
 	UPROPERTY()
@@ -203,7 +206,9 @@ protected:
 	float ThrowDelay = 1.5f;
 
 public:
+	void ThrowBegin();
 	void ThrowGrenade();
+	void ThrowEnd();
 
 // HealPack
 protected:
@@ -246,12 +251,15 @@ protected:
 	int32 CurHp = 0;
 
 	UPROPERTY(EditAnywhere)
-	int32 CurMainAmmo = 30;
+	int32 CurMainAmmo = 50;
 
-	int32 MaxMainAmmo = 30;
+	int32 MaxMainAmmo = 50;
 
 	UPROPERTY(EditAnywhere)
-	int32 RemainMainAmmo = 60;
+	int32 CurRemainMainAmmo = 250;
+
+	UPROPERTY(EditAnywhere)
+	int32 MaxRemainMainAmmo = 250;
 
 	UPROPERTY(EditAnywhere)
 	int32 CurSubAmmo = 12;

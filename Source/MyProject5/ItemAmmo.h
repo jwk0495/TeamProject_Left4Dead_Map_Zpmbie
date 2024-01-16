@@ -18,5 +18,5 @@ public:
 	AItemAmmo();
 
 protected:
-	int32 AmmoValue = 20;
+	int32 AmmoValue = 50;
 };

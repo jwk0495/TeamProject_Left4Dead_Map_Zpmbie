@@ -40,4 +40,5 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsJumping = (bIsFalling & (MoveVelocity.Z > JumpThreshold));
 	bIsFiring = OwningPlayer->GetIsFiring();
 	bIsMainWeapon = OwningPlayer->GetIsMainWeapon();
+	bIsDead = OwningPlayer->GetIsDead();
 }

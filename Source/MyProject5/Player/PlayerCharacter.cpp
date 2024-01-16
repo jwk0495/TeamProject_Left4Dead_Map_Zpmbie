@@ -290,7 +290,7 @@ void APlayerCharacter::Attack(const FInputActionValue& InputAction)
 		OneShot();
 		break;
 	case EHandType::Grenade:
-		PlayMontage(ThrowGrenadeMontage);
+		ThrowBegin();
 		break;
 	case EHandType::HealPack:
 
@@ -322,7 +322,7 @@ void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 	{
 		return;
 	}
-	if (CurHand == EHandType::MainWeapon && (CurMainAmmo == MaxMainAmmo || RemainMainAmmo == 0))
+	if (CurHand == EHandType::MainWeapon && (CurMainAmmo == MaxMainAmmo || CurRemainMainAmmo == 0))
 	{
 		return;
 	}
@@ -332,9 +332,6 @@ void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 	}
 
 	IsReloading = true;
-
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, this, &APlayerCharacter::ReloadComplete, ReloadDelayTime, false);
 
 	// Animation
 	if (CurHand == EHandType::MainWeapon)
@@ -578,14 +575,21 @@ void APlayerCharacter::GetItem(const FInputActionValue& InputAction)
 		SetRemainHealPack(RemainHealPack + ItemData.ItemValue);
 		break;
 	case EItemType::Ammo:
-		SetRemainMainAmmo(RemainMainAmmo + ItemData.ItemValue);
+		if (CurRemainMainAmmo < MaxRemainMainAmmo)
+		{
+			SetRemainMainAmmo(CurRemainMainAmmo + ItemData.ItemValue);
+		}
 		break;
 	case EItemType::Grenade:
 		SetRemainGrenade(RemainGrenade + ItemData.ItemValue);
 		break;
 	}
-	NearbyItem->Destroy();
-	RemoveNearbyItem(NearbyItem);
+
+	if (ItemData.ItemType != EItemType::Ammo)
+	{
+		NearbyItem->Destroy();
+		RemoveNearbyItem(NearbyItem);
+	}
 }
 
 float APlayerCharacter::GetMoveSpeed() const
@@ -617,7 +621,7 @@ int APlayerCharacter::SetHp(int32 NewHp)
 int APlayerCharacter::SetCurMainAmmo(int32 NewCurAmmo)
 {
 	CurMainAmmo = FMath::Clamp(NewCurAmmo, 0, MaxMainAmmo);
-	OnMainAmmoChanged.ExecuteIfBound(CurMainAmmo, RemainMainAmmo);
+	OnMainAmmoChanged.ExecuteIfBound(CurMainAmmo, CurRemainMainAmmo);
 
 	if (CurMainAmmo == 0)
 	{
@@ -629,10 +633,10 @@ int APlayerCharacter::SetCurMainAmmo(int32 NewCurAmmo)
 
 int APlayerCharacter::SetRemainMainAmmo(int32 NewRemainAmmo)
 {
-	RemainMainAmmo = FMath::Clamp(NewRemainAmmo, 0, 500); // 500 is temp
-	OnMainAmmoChanged.ExecuteIfBound(CurMainAmmo, RemainMainAmmo);
+	CurRemainMainAmmo = FMath::Clamp(NewRemainAmmo, 0, MaxRemainMainAmmo); // 500 is temp
+	OnMainAmmoChanged.ExecuteIfBound(CurMainAmmo, CurRemainMainAmmo);
 
-	return RemainMainAmmo;
+	return CurRemainMainAmmo;
 }
 
 int APlayerCharacter::SetCurSubAmmo(int32 NewCurAmmo)
@@ -854,15 +858,15 @@ void APlayerCharacter::ReloadComplete()
 	if (CurHand == EHandType::MainWeapon)
 	{
 		int32 diff = MaxMainAmmo - CurMainAmmo;
-		if (diff >= RemainMainAmmo)
+		if (diff >= CurRemainMainAmmo)
 		{
-			SetCurMainAmmo(CurMainAmmo + RemainMainAmmo);
+			SetCurMainAmmo(CurMainAmmo + CurRemainMainAmmo);
 			SetRemainMainAmmo(0);
 		}
 		else
 		{
 			SetCurMainAmmo(MaxMainAmmo);
-			SetRemainMainAmmo(RemainMainAmmo - diff);
+			SetRemainMainAmmo(CurRemainMainAmmo - diff);
 		}
 	}
 	else if (CurHand == EHandType::SubWeapon)
@@ -871,10 +875,10 @@ void APlayerCharacter::ReloadComplete()
 	}
 	IsReloading = false;
 
-	UE_LOG(LogTemp, Log, TEXT("%d / %d"), CurMainAmmo, RemainMainAmmo);
+	UE_LOG(LogTemp, Log, TEXT("%d / %d"), CurMainAmmo, CurRemainMainAmmo);
 }
 
-void APlayerCharacter::ThrowGrenade()
+void APlayerCharacter::ThrowBegin()
 {
 	if (RemainGrenade < 1 || IsThrowing)
 	{
@@ -882,8 +886,13 @@ void APlayerCharacter::ThrowGrenade()
 	}
 	IsThrowing = true;
 
-	const FVector MuzzleLocation = GetActorLocation() + FVector(0, 0, GetMuzzleOffsetZ()) + (GetActorForwardVector() * (GetCapsuleComponent()->GetUnscaledCapsuleRadius()));
-	const FRotator MuzzleRotator = FRotationMatrix::MakeFromX(GetActorForwardVector()).Rotator();
+	PlayMontage(ThrowGrenadeMontage);
+}
+
+void APlayerCharacter::ThrowGrenade()
+{
+	const FVector ThrowLocation = GetMesh()->GetSocketLocation(TEXT("WeaponSocket"));
+	const FRotator ThrowRotator = GetMesh()->GetSocketRotation(TEXT("WeaponSocket"));
 
 	const FRotator ControllerRotator = Controller->GetControlRotation();
 	const FVector ControllerForwardVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::X);
@@ -894,25 +903,27 @@ void APlayerCharacter::ThrowGrenade()
 	FActorSpawnParameters Params;
 	Params.Owner = this;
 	Params.Instigator = GetInstigator();
-	AThrowableWeaponBase* Throwable = GetWorld()->SpawnActor<AThrowableWeaponBase>(GrenadeClass, MuzzleLocation, MuzzleRotator, Params);
+	AThrowableWeaponBase* Throwable = GetWorld()->SpawnActor<AThrowableWeaponBase>(GrenadeClass, ThrowLocation, ThrowRotator, Params);
 	if (Throwable)
 	{
 		Throwable->Throw(ThrowDirVec);
 	}
 	SetRemainGrenade(RemainGrenade - 1);
 	UE_LOG(LogTemp, Log, TEXT("Grenade: %d"), RemainGrenade);
+}
 
-	// Timer
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle,
-		[&]()
-		{
-			IsThrowing = false;
-		}, 1.0f, false, ThrowDelay);
+void APlayerCharacter::ThrowEnd()
+{
+	IsThrowing = false;
 }
 
 void APlayerCharacter::SetNearbyItem(AItemBase* InItem)
 {
+	if (NearbyItem)
+	{
+		NearbyItem->OutlineOff();
+	}
+
 	NearbyItem = InItem;
 	FText ItemText = FText::FromString(FString::Printf(TEXT("%s 획득하기"), *NearbyItem->GetItemData().ItemText));
 	OnNearbyItemChanged.ExecuteIfBound(true, ItemText);
