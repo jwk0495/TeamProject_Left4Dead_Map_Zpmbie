@@ -58,5 +58,14 @@ protected:
 	uint8 bIsMainWeapon: 1;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	uint8 bIsSubWeapon: 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	uint8 bIsGrenade: 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	uint8 bIsHealPack: 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	uint8 bIsDead: 1;
 };

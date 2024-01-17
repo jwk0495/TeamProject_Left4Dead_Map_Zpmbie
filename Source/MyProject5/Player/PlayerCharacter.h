@@ -192,6 +192,9 @@ public:
 	FORCEINLINE uint8 GetIsDead() const { return IsDead; }
 	FORCEINLINE uint8 GetIsFiring() const { return IsFiring; }
 	FORCEINLINE uint8 GetIsMainWeapon() const { return CurHand == EHandType::MainWeapon; }
+	FORCEINLINE uint8 GetIsSubWeapon() const { return CurHand == EHandType::SubWeapon; }
+	FORCEINLINE uint8 GetIsGrenade() const { return CurHand == EHandType::Grenade; }
+	FORCEINLINE uint8 GetIsHealPack() const { return CurHand == EHandType::HealPack; }
 
 // Recoil
 protected:
