@@ -112,6 +112,10 @@ protected:
 
 	void Heal(const FInputActionValue& InputAction);
 
+public:
+	void HealEnd();
+
+protected:
 	void MeleeAttack(const FInputActionValue& InputAction);
 
 	void GetItem(const FInputActionValue& InputAction);
@@ -240,7 +244,7 @@ protected:
 	int32 MeleeAttackPower = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float KnuckbackPower = 500.0f;
+	float KnuckbackPower = 100.0f;
 
 	bool IsMeleeAttackDelay = false;
 	float MeleeAttackDelay = 0.6f;
@@ -345,6 +349,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UAnimMontage> MeleeAttackMontage;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UAnimMontage> HealMontage;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UAnimMontage> DeadMontage;

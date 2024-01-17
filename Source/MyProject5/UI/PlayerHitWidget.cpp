@@ -7,7 +7,6 @@
 
 UPlayerHitWidget::UPlayerHitWidget(const FObjectInitializer& ObjectInitializer) : Super(ObjectInitializer)
 {
-
 }
 
 void UPlayerHitWidget::NativeConstruct()
@@ -21,11 +20,8 @@ void UPlayerHitWidget::NativeConstruct()
 
 void UPlayerHitWidget::ShowHItEffect()
 {
-	if (EffectHandle.IsValid())
-	{
-		GetWorld()->GetTimerManager().ClearTimer(EffectHandle);
-		Count = 1;
-	}
+	StopEffectTimer();
+	StopResetTimer();
 
 	HitEffectImage->SetOpacity(MaxAlpha);
 	GetWorld()->GetTimerManager().SetTimer(EffectHandle, FTimerDelegate::CreateLambda(
@@ -34,6 +30,29 @@ void UPlayerHitWidget::ShowHItEffect()
 			Count++;
 		}
 	), 0.1f, true);
+	
+	GetWorld()->GetTimerManager().SetTimer(StopHandle, FTimerDelegate::CreateLambda(
+		[&]() {
+			StopEffectTimer();
+		}
+	),MaxAlpha / DeltaAlpha, false);
+}
+
+void UPlayerHitWidget::StopEffectTimer()
+{
+	if (EffectHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(EffectHandle);
+		Count = 1;
+	}
+}
+
+void UPlayerHitWidget::StopResetTimer()
+{
+	if (StopHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(StopHandle);
+	}
 }
 
 void UPlayerHitWidget::SetDelegate(class APlayerCharacter* PlayerCharacter)

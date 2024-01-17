@@ -173,6 +173,11 @@ APlayerCharacter::APlayerCharacter()
 	{
 		MeleeAttackMontage = MeleeAttackMontageRef.Object;
 	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> HealMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_Heal.AM_Heal'"));
+	if (HealMontageRef.Object)
+	{
+		HealMontage = HealMontageRef.Object;
+	}
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_Dead.AM_Dead'"));
 	if (DeadMontageRef.Object)
 	{
@@ -577,24 +582,26 @@ void APlayerCharacter::Heal(const FInputActionValue& InputAction)
 	bUseControllerRotationYaw = false;
 	WeaponComponent->SetStaticMesh(nullptr);
 
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
-		[&]() {
-			SetHp(CurHp + HealRate * MaxHp);
-			IsHealing = false;
-			PlayerCamera->AddRelativeLocation(FVector(200, 0, -80));
-			bUseControllerRotationYaw = true;
-			if (RemainHealPack > 0)
-			{
-				WeaponComponent->SetStaticMesh(HealPackHand->GetWeaponStaticMesh());
-			}
-			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
-		}), HealDelayTime, false);
+	PlayMontage(HealMontage);
+}
+
+void APlayerCharacter::HealEnd()
+{
+	SetHp(CurHp + HealRate * MaxHp);
+	IsHealing = false;
+	PlayerCamera->AddRelativeLocation(FVector(200, 0, -80));
+	bUseControllerRotationYaw = true;
+
+	if (RemainHealPack > 0)
+	{
+		WeaponComponent->SetStaticMesh(HealPackHand->GetWeaponStaticMesh());
+	}
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 
 void APlayerCharacter::MeleeAttack(const FInputActionValue& InputAction)
 {
-	if (IsMeleeAttackDelay || IsDead)
+	if (IsMeleeAttackDelay || IsHealing || IsDead)
 	{
 		return;
 	}
@@ -742,13 +749,13 @@ void APlayerCharacter::OnDie()
 
 void APlayerCharacter::ShowProcessUI()
 {
-	if (IsReloading)
+	/*if (IsReloading)
 	{
 		GetMyController()->ShowProcessUI(FText::FromString(TEXT("Reloading...")), ReloadDelayTime);
-	}
-	else if (IsHealing)
+	}*/
+	if (IsHealing)
 	{
-		GetMyController()->ShowProcessUI(FText::FromString(TEXT("Healing...")), HealDelayTime);
+		GetMyController()->ShowProcessUI(FText::FromString(TEXT("Healing...")), HealMontage->GetPlayLength());
 	}
 }
 

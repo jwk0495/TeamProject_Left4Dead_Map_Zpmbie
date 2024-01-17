@@ -28,7 +28,11 @@ protected:
 	UFUNCTION()
 	void ShowHItEffect();
 
+	void StopEffectTimer();
+	void StopResetTimer();
+
 	FTimerHandle EffectHandle;
+	FTimerHandle StopHandle;
 	int32 Count = 1;
 
 	float MaxAlpha = 0.3f;
