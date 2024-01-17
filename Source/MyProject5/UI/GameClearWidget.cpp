@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "UI/GameClearWidget.h"
@@ -27,6 +27,10 @@ void UGameClearWidget::NativeConstruct()
 
 void UGameClearWidget::SetClearUI(int32 Seconds, int32 KillCount)
 {
-	ClearTimeText->SetText(FText::FromString(FString::Printf(TEXT("»ýÁ¸ ½Ã°£ - %d:%d"), Seconds / 60, Seconds % 60)));
-	KillCountText->SetText(FText::FromString(FString::Printf(TEXT("Ã³Ä¡ÇÑ Á»ºñ ¼ö - %d"), KillCount)));
+	int Min = Seconds / 60;
+	int Sec = Seconds % 60;
+	FString MinStr = Min < 10 ? FString::Printf(TEXT("0%d"), Min) : FString::Printf(TEXT("%d"), Min);
+	FString SecStr = Sec < 10 ? FString::Printf(TEXT("0%d"), Sec) : FString::Printf(TEXT("%d"), Sec);
+	ClearTimeText->SetText(FText::FromString(FString::Printf(TEXT("ìƒì¡´ ì‹œê°„ - %s:%s"), *MinStr, *SecStr)));
+	KillCountText->SetText(FText::FromString(FString::Printf(TEXT("ì²˜ì¹˜í•œ ì¢€ë¹„ ìˆ˜ - %d"), KillCount)));
 }

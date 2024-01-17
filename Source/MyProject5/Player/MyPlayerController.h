@@ -57,6 +57,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UNearbyItemWidget> NearbyItemUIWidget;
 
+	// Hit Effect
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UPlayerHitWidget> HitEffectUIClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UPlayerHitWidget> HitEffectUIWidget;
+
 	// GameOver UI
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TSubclassOf<class UGameOverUIWidget> GameOverUIClass;

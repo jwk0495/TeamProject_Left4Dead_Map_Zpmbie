@@ -8,6 +8,7 @@
 #include "UI/GameOverUIWidget.h"
 #include "UI/NearbyItemWidget.h"
 #include "UI/GameClearWidget.h"
+#include "UI/PlayerHitWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Game/MyGameMode.h"
 
@@ -41,6 +42,12 @@ AMyPlayerController::AMyPlayerController()
 	if (NearbyItemRef.Class)
 	{
 		NearbyItemUIClass = NearbyItemRef.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<UPlayerHitWidget> HitEffectUIRef(TEXT("/Game/PKH/UI/WBP_PlayerHitEffect.WBP_PlayerHitEffect_C"));
+	if (HitEffectUIRef.Class)
+	{
+		HitEffectUIClass = HitEffectUIRef.Class;
 	}
 
 	static ConstructorHelpers::FClassFinder<UGameOverUIWidget> GameOverUIRef(TEXT("/Game/PKH/UI/WBP_GameOverUI.WBP_GameOverUI_C"));
@@ -95,6 +102,12 @@ void AMyPlayerController::BeginPlay()
 		NearbyItemUIWidget->AddToViewport();
 	}
 
+	HitEffectUIWidget = CreateWidget<UPlayerHitWidget>(this, HitEffectUIClass);
+	if (HitEffectUIWidget)
+	{
+		HitEffectUIWidget->AddToViewport();
+	}
+
 	GameOverUIWidget = CreateWidget<UGameOverUIWidget>(this, GameOverUIClass);
 	if (GameOverUIWidget)
 	{
@@ -116,6 +129,7 @@ void AMyPlayerController::InitWidget(APlayerCharacter* InPlayerCharacter)
 	AmmoCount->SetDelegate(InPlayerCharacter);
 	CrosshairWidget->SetDelegate(InPlayerCharacter);
 	NearbyItemUIWidget->SetDelegate(InPlayerCharacter);
+	HitEffectUIWidget->SetDelegate(InPlayerCharacter);
 }
 
 void AMyPlayerController::ShowProcessUI(FText Text, float Time)

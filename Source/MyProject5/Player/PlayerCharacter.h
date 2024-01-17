@@ -14,6 +14,7 @@ DECLARE_DELEGATE_OneParam(FOnGrenadeChangedDelegate, int /*RemainGrenade*/);
 DECLARE_DELEGATE_OneParam(FOnHealPackChangedDelegate, int /*RemainHealPack*/);
 DECLARE_DELEGATE_OneParam(FOnShootAccurancyChangedDelegate, float /*ShootAccurancy*/);
 DECLARE_DELEGATE_TwoParams(FOnNearbyItemChangedDelegate, bool /*IsExist*/, FText /*NewItemText*/);
+DECLARE_DELEGATE(FOnPlayerDamagedDelegate);
 
 /**
  * 
@@ -141,7 +142,7 @@ protected:
 
 // HandType
 protected:
-	EHandType CurHand;
+	EHandType CurHand = EHandType::MainWeapon;
 
 // Shoot & Reload
 protected:
@@ -230,6 +231,10 @@ protected:
 	bool IsMeleeAttackDelay = false;
 	float MeleeAttackDelay = 0.6f;
 
+public:
+	void MeleeAttackHit();
+	void MeleeAttackEnd();
+
 // Nearby Item
 protected:
 	UPROPERTY()
@@ -307,6 +312,7 @@ public:
 	FOnHealPackChangedDelegate OnHealPackChanged;
 	FOnShootAccurancyChangedDelegate OnShootAccurancyChanged;
 	FOnNearbyItemChangedDelegate OnNearbyItemChanged;
+	FOnPlayerDamagedDelegate OnPlayerDamaged;
 
 protected:
 	void ShowProcessUI();
@@ -322,6 +328,9 @@ protected:
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UAnimMontage> PistolReloadMontage;
+
+	UPROPERTY(VisibleAnywhere)
+	TObjectPtr<class UAnimMontage> MeleeAttackMontage;
 
 	UPROPERTY(VisibleAnywhere)
 	TObjectPtr<class UAnimMontage> DeadMontage;

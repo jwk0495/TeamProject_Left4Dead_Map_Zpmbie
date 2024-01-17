@@ -19,7 +19,7 @@ AClearArea::AClearArea()
 	ParticleComponent->SetupAttachment(ClearCollision);
 	ParticleComponent->bAutoActivate = true;
 	ParticleComponent->bAutoDestroy = false;
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleRef(TEXT(""));
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleRef(TEXT("/Script/Engine.ParticleSystem'/Game/InfinityBladeEffects/Effects/FX_Mobile/Misc/P_levelUp_OLD.P_levelUp_OLD'"));
 	if (ParticleRef.Object)
 	{
 		ParticleComponent->SetTemplate(ParticleRef.Object);

@@ -53,7 +53,7 @@ protected:
 	FVector2D LeftPosition;
 	FVector2D RightPosition;
 
-	float ExpandValue = 40.0f;
+	float ExpandValue = 60.0f;
 
 public:
 	void SetDelegate(class APlayerCharacter* PlayerCharacter);

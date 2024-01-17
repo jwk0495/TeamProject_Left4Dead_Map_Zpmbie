@@ -55,8 +55,8 @@ APlayerBase::APlayerBase()
 	GunShotParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("GunShotParticle"));
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	GunShotParticleComponent->bAutoActivate = false;
-	GunShotParticleComponent->bAutoDestroy = true;
-	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleRef(TEXT("/Script/Engine.ParticleSystem'/Game/StarterContent/Particles/P_Fire.P_Fire'"));
+	GunShotParticleComponent->bAutoDestroy = false;
+	static ConstructorHelpers::FObjectFinder<UParticleSystem> ParticleRef(TEXT("/Script/Engine.ParticleSystem'/Game/InfinityBladeEffects/Effects/FX_Monsters/FX_Monster_Gruntling/Master/P_BackPack_MuzzleFlash.P_BackPack_MuzzleFlash'"));
 	if (ParticleRef.Object)
 	{
 		GunShotParticleComponent->SetTemplate(ParticleRef.Object);

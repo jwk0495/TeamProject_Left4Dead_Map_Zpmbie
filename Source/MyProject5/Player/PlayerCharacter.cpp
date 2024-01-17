@@ -18,6 +18,7 @@
 #include "public/ZombieBase.h"
 #include "Engine/StaticMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -154,6 +155,11 @@ APlayerCharacter::APlayerCharacter()
 	{
 		PistolReloadMontage = PistolReloadMontageRef.Object;
 	}
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> MeleeAttackMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_MeleeAttack.AM_MeleeAttack'"));
+	if (MeleeAttackMontageRef.Object)
+	{
+		MeleeAttackMontage = MeleeAttackMontageRef.Object;
+	}
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> DeadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_Dead.AM_Dead'"));
 	if (DeadMontageRef.Object)
 	{
@@ -171,7 +177,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	EnhancedInputCompoennt->BindAction(JumpAction, ETriggerEvent::Completed, this, &ACharacter::StopJumping);
 	EnhancedInputCompoennt->BindAction(MoveAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 	EnhancedInputCompoennt->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
-	// Coruch
+	// Crouch
 	EnhancedInputCompoennt->BindAction(CrouchAction, ETriggerEvent::Started, this, &APlayerCharacter::CrouchStart);
 	EnhancedInputCompoennt->BindAction(CrouchAction, ETriggerEvent::Completed, this, &APlayerCharacter::CrouchEnd);
 	// Attack
@@ -525,40 +531,7 @@ void APlayerCharacter::MeleeAttack(const FInputActionValue& InputAction)
 		StopShoot();
 	}
 
-	const FVector ForwardVec = FRotationMatrix(Controller->GetControlRotation()).GetUnitAxis(EAxis::X);
-	FVector AttackCenterVec = GetActorLocation() + MeleeAttackMuzzleOffset + ForwardVec * GetCapsuleComponent()->GetUnscaledCapsuleRadius() * 1.5f;
-	
-	TArray<FOverlapResult> OverlapResults;
-	bool IsHitted = GetWorld()->OverlapMultiByChannel(OverlapResults, AttackCenterVec, FQuat::MakeFromRotator(GetController()->GetControlRotation()),
-													  ECollisionChannel::ECC_GameTraceChannel14, FCollisionShape::MakeBox(MeleeAttackBoxVec));
-
-	if (IsHitted)
-	{
-		for (int i = 0; i < OverlapResults.Num(); i++)
-		{
-			AZombieBase* Zombie = Cast<AZombieBase>(OverlapResults[i].GetActor());
-			if (Zombie)
-			{
-				FVector MyLocation = GetActorLocation();
-				MyLocation.Z = 0;
-				FVector TargetLocation = Zombie->GetActorLocation();
-				TargetLocation.Z = 0;
-				FVector DirectionVec = TargetLocation - MyLocation;
-				DirectionVec.Normalize();
-				Zombie->LaunchCharacter(DirectionVec * KnuckbackPower, true, false);
-
-				Zombie->OnKnuckback();
-				Zombie->OnDamaged(MeleeAttackPower);
-				UE_LOG(LogTemp, Log, TEXT("Melee Attack Hit: %d"), MeleeAttackPower);
-			}
-		}
-	}
-
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
-		[&]() {
-			IsMeleeAttackDelay = false;
-		}), MeleeAttackDelay, false);
+	PlayMontage(MeleeAttackMontage);
 }
 
 void APlayerCharacter::GetItem(const FInputActionValue& InputAction)
@@ -671,7 +644,7 @@ void APlayerCharacter::OnDamaged(int32 InDamage)
 	}
 
 	SetHp(CurHp - InDamage);
-	UE_LOG(LogTemp, Log, TEXT("OnDamaged: %d"), InDamage);
+	OnPlayerDamaged.ExecuteIfBound();
 }
 
 void APlayerCharacter::OnDie()
@@ -758,20 +731,19 @@ void APlayerCharacter::OneShot()
 	const FVector MuzzleLocation = FireSocketLocation;
 	const FRotator MuzzleRotator = FireSocketRotator;
 
-	const FRotator ControllerRotator = FireSocketRotator;
-	const FVector FireSocketForwardVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::X);
-	const FVector FireSocketRightVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::Y);
-	const FVector FireSocketUpVec = FRotationMatrix(ControllerRotator).GetUnitAxis(EAxis::Z);
+	APlayerCameraManager* CameraManager = UGameplayStatics::GetPlayerCameraManager(GetWorld(), 0);
+	FVector CameraLocation = CameraManager->GetCameraLocation();
+	FVector Destination = CameraLocation + CameraManager->GetActorForwardVector() * 1000;
+
+	float XOffset = FMath::RandRange(-1, 1) > 0 ? (1 - CurShootAccurancy) : -(1 - CurShootAccurancy);
+	float YOffset = FMath::RandRange(-1, 1) > 0 ? (1 - CurShootAccurancy) : -(1 - CurShootAccurancy);
+	Destination.X += XOffset;
+	Destination.Y += YOffset;
 
 	FActorSpawnParameters Params;
 	Params.Owner = this;
 	Params.Instigator = GetInstigator();
-	FVector FireDirectionVec = FireSocketForwardVec;
-
-	float XOffset = FMath::RandRange(-1, 1) > 0 ? (1 - CurShootAccurancy) : -(1 - CurShootAccurancy);
-	float YOffset = FMath::RandRange(-1, 1) > 0 ? (1 - CurShootAccurancy) : -(1 - CurShootAccurancy);
-	FireDirectionVec = FireDirectionVec.RotateAngleAxis(XOffset * ShootAccurancyValue, FireSocketRightVec);
-	FireDirectionVec = FireDirectionVec.RotateAngleAxis(YOffset * ShootAccurancyValue, FireSocketUpVec);
+	FVector FireDirectionVec = (Destination - FireSocketLocation).GetSafeNormal();
 	
 	ABullet* Projectile = GetWorld()->SpawnActor<ABullet>(BulletClass, MuzzleLocation, MuzzleRotator, Params);
 	if (Projectile)
@@ -788,7 +760,7 @@ void APlayerCharacter::OneShot()
 		SetCurSubAmmo(CurSubAmmo - 1);;
 	}
 
-	// Accurancy
+	// Accuracy
 	SetShootAccurancy(CurShootAccurancy - GetShootDeltaAccurancy());
 
 	// recoil 
@@ -800,7 +772,8 @@ void APlayerCharacter::OneShot()
 	AddControllerYawInput(RecoilVec.X);
 
 	// Particle
-	//GunShotParticleComponent->SetActive(true);
+	GunShotParticleComponent->SetActive(false);
+	GunShotParticleComponent->SetActive(true);
 }
 
 void APlayerCharacter::Shoot()
@@ -906,7 +879,7 @@ void APlayerCharacter::ThrowGrenade()
 	AThrowableWeaponBase* Throwable = GetWorld()->SpawnActor<AThrowableWeaponBase>(GrenadeClass, ThrowLocation, ThrowRotator, Params);
 	if (Throwable)
 	{
-		Throwable->Throw(ThrowDirVec);
+		Throwable->Throw(ThrowDirVec); UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), ThrowDirVec.X, ThrowDirVec.Y, ThrowDirVec.Z);
 	}
 	SetRemainGrenade(RemainGrenade - 1);
 	UE_LOG(LogTemp, Log, TEXT("Grenade: %d"), RemainGrenade);
@@ -915,6 +888,43 @@ void APlayerCharacter::ThrowGrenade()
 void APlayerCharacter::ThrowEnd()
 {
 	IsThrowing = false;
+}
+
+void APlayerCharacter::MeleeAttackHit()
+{
+	const FVector ForwardVec = FRotationMatrix(Controller->GetControlRotation()).GetUnitAxis(EAxis::X);
+	FVector AttackCenterVec = GetActorLocation() + MeleeAttackMuzzleOffset + ForwardVec * GetCapsuleComponent()->GetUnscaledCapsuleRadius() * 1.5f;
+
+	TArray<FOverlapResult> OverlapResults;
+	bool IsHitted = GetWorld()->OverlapMultiByChannel(OverlapResults, AttackCenterVec, FQuat::MakeFromRotator(GetController()->GetControlRotation()),
+		ECollisionChannel::ECC_GameTraceChannel14, FCollisionShape::MakeBox(MeleeAttackBoxVec));
+
+	if (IsHitted)
+	{
+		for (int i = 0; i < OverlapResults.Num(); i++)
+		{
+			AZombieBase* Zombie = Cast<AZombieBase>(OverlapResults[i].GetActor());
+			if (Zombie)
+			{
+				FVector MyLocation = GetActorLocation();
+				MyLocation.Z = 0;
+				FVector TargetLocation = Zombie->GetActorLocation();
+				TargetLocation.Z = 0;
+				FVector DirectionVec = TargetLocation - MyLocation;
+				DirectionVec.Normalize();
+
+				Zombie->OnKnuckback();
+				Zombie->LaunchCharacter(DirectionVec * KnuckbackPower, true, false);				
+				Zombie->OnDamaged(MeleeAttackPower);
+				UE_LOG(LogTemp, Log, TEXT("Melee Attack Hit: %d"), MeleeAttackPower);
+			}
+		}
+	}
+}
+
+void APlayerCharacter::MeleeAttackEnd()
+{
+	IsMeleeAttackDelay = false;
 }
 
 void APlayerCharacter::SetNearbyItem(AItemBase* InItem)
