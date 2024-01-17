@@ -15,6 +15,9 @@ AClearArea::AClearArea()
 	ClearCollision->OnComponentBeginOverlap.AddDynamic(this, &AClearArea::OnBeginOverlap);
 	ClearCollision->OnComponentEndOverlap.AddDynamic(this, &AClearArea::OnEndOverlap);
 
+	MeshComponent = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	MeshComponent->SetupAttachment(ClearCollision);
+	
 	ParticleComponent = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("ParticleComponent"));
 	ParticleComponent->SetupAttachment(ClearCollision);
 	ParticleComponent->bAutoActivate = true;

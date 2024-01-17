@@ -140,6 +140,18 @@ protected:
 	UPROPERTY()
 	TObjectPtr<class ASubWeapon> SubWeapon;
 
+	UPROPERTY()
+	TSubclassOf<class AGrenadeHand> GrenadeHandClass;
+
+	UPROPERTY()
+	TObjectPtr<class AGrenadeHand> GrenadeHand;
+
+	UPROPERTY()
+	TSubclassOf<class AHealPackHand> HealPackHandClass;
+
+	UPROPERTY()
+	TObjectPtr<class AHealPackHand> HealPackHand;
+
 // HandType
 protected:
 	EHandType CurHand = EHandType::MainWeapon;
@@ -168,11 +180,11 @@ protected:
 	// Shoot Accurancy
 	float CurShootAccurancy = 1.0f;
 	float MaxShootAccurancy = 1.0f;
-	float DeltaShootAccurancyMainWeapon = 0.005f;
+	float DeltaShootAccurancyMainWeapon = 0.01f;
 	float DeltaShootAccurancySubweapon = 0.05f;
 	float DeltaShootAccurancyRateInZoom = 0.5f;
 	float DeltaShootAccurancyRecovery = 0.025f;
-	float ShootAccurancyValue = 0.75f;
+	float ShootAccurancyValue = 5.0f;
 
 	void SetShootAccurancy(float NewShootAccurancy);
 
@@ -207,7 +219,6 @@ protected:
 	TSubclassOf<class AThrowableWeaponBase> GrenadeClass;
 
 	bool IsThrowing = false; 
-	float ThrowDelay = 1.5f;
 
 public:
 	void ThrowBegin();

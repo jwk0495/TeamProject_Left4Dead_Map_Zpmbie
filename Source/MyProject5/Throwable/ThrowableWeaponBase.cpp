@@ -94,6 +94,7 @@ void AThrowableWeaponBase::Explode()
 	FTimerHandle DestroyHandle;
 	GetWorld()->GetTimerManager().SetTimer(DestroyHandle, FTimerDelegate::CreateLambda(
 		[&]() {
+			GetWorld()->GetTimerManager().ClearTimer(LightHandle);
 			Destroy();
 		}
 	), 2.0f, false);
@@ -101,7 +102,6 @@ void AThrowableWeaponBase::Explode()
 	// Light
 	LightComponent->SetIntensity(MaxIntensity);
 
-	FTimerHandle LightHandle;
 	GetWorld()->GetTimerManager().SetTimer(LightHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			LightComponent->SetIntensity(MaxIntensity - DeltaLightIntensity * count);

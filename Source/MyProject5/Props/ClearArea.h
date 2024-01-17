@@ -19,6 +19,9 @@ protected:
 	TObjectPtr<class USphereComponent> ClearCollision;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UStaticMeshComponent> MeshComponent;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UParticleSystemComponent> ParticleComponent;
 
 	UFUNCTION()

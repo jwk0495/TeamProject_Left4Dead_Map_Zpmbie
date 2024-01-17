@@ -42,6 +42,8 @@ protected:
 	float DeltaLightIntensity = 10000;
 	int32 count = 1;
 
+	FTimerHandle LightHandle;
+
 public:
 	void Throw(FVector DirectionVec);
 	

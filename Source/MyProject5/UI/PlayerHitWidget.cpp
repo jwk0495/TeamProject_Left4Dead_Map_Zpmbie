@@ -16,7 +16,7 @@ void UPlayerHitWidget::NativeConstruct()
 
 	HitEffectImage = Cast<UImage>(GetWidgetFromName(TEXT("HitEffectImg")));
 	ensure(HitEffectImage);
-	HitEffectImage->ColorAndOpacity.A = 0;
+	HitEffectImage->SetOpacity(0);
 }
 
 void UPlayerHitWidget::ShowHItEffect()
@@ -24,13 +24,14 @@ void UPlayerHitWidget::ShowHItEffect()
 	if (EffectHandle.IsValid())
 	{
 		GetWorld()->GetTimerManager().ClearTimer(EffectHandle);
-		count = 1;
+		Count = 1;
 	}
 
-	HitEffectImage->ColorAndOpacity.A = MaxAlpha; UE_LOG(LogTemp, Log, TEXT("Hit Effect"));
+	HitEffectImage->SetOpacity(MaxAlpha);
 	GetWorld()->GetTimerManager().SetTimer(EffectHandle, FTimerDelegate::CreateLambda(
 		[&]() {
-			HitEffectImage->ColorAndOpacity.A = MaxAlpha - (count * DeltaAlpha);
+			HitEffectImage->SetOpacity(MaxAlpha - (Count * DeltaAlpha));
+			Count++;
 		}
 	), 0.1f, true);
 }

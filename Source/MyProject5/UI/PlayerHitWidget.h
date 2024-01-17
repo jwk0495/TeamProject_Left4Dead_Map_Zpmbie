@@ -29,10 +29,10 @@ protected:
 	void ShowHItEffect();
 
 	FTimerHandle EffectHandle;
-	int32 count = 1;
+	int32 Count = 1;
 
 	float MaxAlpha = 0.3f;
-	float DeltaAlpha = 0.01f;
+	float DeltaAlpha = 0.015f;
 
 // Delegate
 public:

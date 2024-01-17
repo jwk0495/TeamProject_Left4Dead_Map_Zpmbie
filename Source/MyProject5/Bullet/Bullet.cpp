@@ -19,8 +19,8 @@ ABullet::ABullet()
 	// Projectile Component
 	ProjectileComponent = CreateDefaultSubobject<UProjectileMovementComponent>(TEXT("ProjectileComponent"));
 	ProjectileComponent->SetUpdatedComponent(SphereComponent);
-	ProjectileComponent->InitialSpeed = 10000.0f;
-	ProjectileComponent->MaxSpeed = 10000.0f;
+	ProjectileComponent->InitialSpeed = 30000.0f;
+	ProjectileComponent->MaxSpeed = 30000.0f;
 	ProjectileComponent->ProjectileGravityScale = 0;
 	ProjectileComponent->bShouldBounce = false;
 

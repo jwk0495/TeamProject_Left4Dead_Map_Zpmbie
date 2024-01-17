@@ -106,7 +106,6 @@ void AMyPlayerController::BeginPlay()
 	if (HitEffectUIWidget)
 	{
 		HitEffectUIWidget->AddToViewport();
-		HitEffectUIWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 
 	GameOverUIWidget = CreateWidget<UGameOverUIWidget>(this, GameOverUIClass);

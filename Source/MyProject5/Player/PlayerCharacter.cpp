@@ -15,6 +15,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Weapon/MainWeapon.h"
 #include "Weapon/SubWeapon.h"
+#include "Weapon/GrenadeHand.h"
+#include "Weapon/HealPackHand.h"
 #include "public/ZombieBase.h"
 #include "Engine/StaticMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
@@ -138,6 +140,17 @@ APlayerCharacter::APlayerCharacter()
 	{
 		SubWeaponClass = SubWeaponRef.Class;
 	}
+	static ConstructorHelpers::FClassFinder<AGrenadeHand> GrenadeHandRef(TEXT("/Game/PKH/BP/BP_GrenadeHand.BP_GrenadeHand_C"));
+	if (GrenadeHandRef.Class)
+	{
+		GrenadeHandClass = GrenadeHandRef.Class;
+	}
+	static ConstructorHelpers::FClassFinder<AHealPackHand> HealPackHandRef(TEXT("/Game/PKH/BP/BP_HealPackHand.BP_HealPackHand_C"));
+	if (HealPackHandRef.Class)
+	{
+		HealPackHandClass = HealPackHandRef.Class;
+	}
+
 
 	// Animation Montage
 	static ConstructorHelpers::FObjectFinder<UAnimMontage> ThrowGrenadeMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_ThrowGrenade.AM_ThrowGrenade'"));
@@ -231,6 +244,10 @@ void APlayerCharacter::BeginPlay()
 	MainWeapon->SetActorHiddenInGame(true);
 	SubWeapon = GetWorld()->SpawnActor<ASubWeapon>(SubWeaponClass, HandLocation, HandRotation, Params);
 	SubWeapon->SetActorHiddenInGame(true); 
+	GrenadeHand = GetWorld()->SpawnActor<AGrenadeHand>(GrenadeHandClass, HandLocation, HandRotation, Params);
+	GrenadeHand->SetActorHiddenInGame(true);
+	HealPackHand = GetWorld()->SpawnActor<AHealPackHand>(HealPackHandClass, HandLocation, HandRotation, Params);
+	HealPackHand->SetActorHiddenInGame(true);
 
 	// Init WeaponComponent
 	CurHand = EHandType::MainWeapon;
@@ -382,6 +399,9 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 		return;
 	}
 
+	IsReloading = false;
+	IsThrowing = false;
+
 	CurHand = EHandType::MainWeapon;
 	UStaticMesh* MainWeaponMesh = MainWeapon->GetWeaponStaticMesh();
 	if (MainWeaponMesh)
@@ -394,6 +414,7 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
+	GunShotParticleComponent->SetRelativeScale3D(FVector(0.01f, 0.01f, 0.01f));
 }
 
 void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
@@ -406,6 +427,9 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 	{
 		return;
 	}
+
+	IsReloading = false;
+	IsThrowing = false;
 
 	ZoomOut(FInputActionValue());
 	CurHand = EHandType::SubWeapon;
@@ -420,6 +444,7 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
+	GunShotParticleComponent->SetRelativeScale3D(FVector(0.05f, 0.05f, 0.04f));
 }
 
 void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
@@ -433,9 +458,27 @@ void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
 		return;
 	}
 
+	IsReloading = false;
+	IsThrowing = false;
+
 	ZoomOut(FInputActionValue());
 	CurHand = EHandType::Grenade;
-	WeaponComponent->SetStaticMesh(nullptr);
+	if (RemainGrenade > 0)
+	{
+		UStaticMesh* GrenadeHandMesh = GrenadeHand->GetWeaponStaticMesh();
+		if (GrenadeHandMesh)
+		{
+			WeaponComponent->SetStaticMesh(GrenadeHandMesh);
+			WeaponComponent->SetRelativeLocation(GrenadeHand->GetWeaponLocation());
+			WeaponComponent->SetRelativeRotation(GrenadeHand->GetWeaponRotation());
+			WeaponComponent->SetRelativeScale3D(GrenadeHand->GetWeaponScale());
+		}
+	}
+	else
+	{
+		WeaponComponent->SetStaticMesh(nullptr);
+	}
+	
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 }
@@ -451,9 +494,27 @@ void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction
 		return;
 	}
 
+	IsReloading = false;
+	IsThrowing = false;
+
 	ZoomOut(FInputActionValue());
 	CurHand = EHandType::HealPack;
-	WeaponComponent->SetStaticMesh(nullptr);
+	if (RemainHealPack > 0)
+	{
+		UStaticMesh* HealPackHandMesh = HealPackHand->GetWeaponStaticMesh();
+		if (HealPackHandMesh)
+		{
+			WeaponComponent->SetStaticMesh(HealPackHandMesh);
+			WeaponComponent->SetRelativeLocation(HealPackHand->GetWeaponLocation());
+			WeaponComponent->SetRelativeRotation(HealPackHand->GetWeaponRotation());
+			WeaponComponent->SetRelativeScale3D(HealPackHand->GetWeaponScale());
+		}
+	}
+	else
+	{
+		WeaponComponent->SetStaticMesh(nullptr);
+	}
+	
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 }
@@ -501,12 +562,20 @@ void APlayerCharacter::Heal(const FInputActionValue& InputAction)
 		return;
 	}
 
+	if (IsReloading)
+	{
+		IsReloading = false;
+	}
+
 	IsHealing = true;
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	SetRemainHealPack(RemainHealPack - 1);
+
 	ShowProcessUI();
 
 	PlayerCamera->AddRelativeLocation(FVector(-200, 0, 80));
+	bUseControllerRotationYaw = false;
+	WeaponComponent->SetStaticMesh(nullptr);
 
 	FTimerHandle Handle;
 	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
@@ -514,6 +583,11 @@ void APlayerCharacter::Heal(const FInputActionValue& InputAction)
 			SetHp(CurHp + HealRate * MaxHp);
 			IsHealing = false;
 			PlayerCamera->AddRelativeLocation(FVector(200, 0, -80));
+			bUseControllerRotationYaw = true;
+			if (RemainHealPack > 0)
+			{
+				WeaponComponent->SetStaticMesh(HealPackHand->GetWeaponStaticMesh());
+			}
 			GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 		}), HealDelayTime, false);
 }
@@ -529,6 +603,11 @@ void APlayerCharacter::MeleeAttack(const FInputActionValue& InputAction)
 	if (IsFiring)
 	{
 		StopShoot();
+	}
+
+	if (IsReloading)
+	{
+		IsReloading = false;
 	}
 
 	PlayMontage(MeleeAttackMontage);
@@ -646,6 +725,7 @@ void APlayerCharacter::OnDamaged(int32 InDamage)
 	SetHp(CurHp - InDamage);
 	OnPlayerDamaged.ExecuteIfBound();
 }
+
 
 void APlayerCharacter::OnDie()
 {
@@ -882,7 +962,13 @@ void APlayerCharacter::ThrowGrenade()
 		Throwable->Throw(ThrowDirVec); UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), ThrowDirVec.X, ThrowDirVec.Y, ThrowDirVec.Z);
 	}
 	SetRemainGrenade(RemainGrenade - 1);
-	UE_LOG(LogTemp, Log, TEXT("Grenade: %d"), RemainGrenade);
+	
+	if (RemainGrenade == 0)
+	{
+		WeaponComponent->SetStaticMesh(nullptr);
+	}
+
+	IsThrowing = false;
 }
 
 void APlayerCharacter::ThrowEnd()
@@ -951,5 +1037,8 @@ void APlayerCharacter::RemoveNearbyItem(AItemBase* OutItem)
 
 void APlayerCharacter::GameClear()
 {
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	StopShoot();
+
 	GetMyController()->GameClear();
 }
