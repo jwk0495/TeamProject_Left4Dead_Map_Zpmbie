@@ -14,7 +14,7 @@ DECLARE_DELEGATE_OneParam(FOnGrenadeChangedDelegate, int /*RemainGrenade*/);
 DECLARE_DELEGATE_OneParam(FOnHealPackChangedDelegate, int /*RemainHealPack*/);
 DECLARE_DELEGATE_OneParam(FOnShootAccurancyChangedDelegate, float /*ShootAccurancy*/);
 DECLARE_DELEGATE_TwoParams(FOnNearbyItemChangedDelegate, bool /*IsExist*/, FText /*NewItemText*/);
-DECLARE_DELEGATE(FOnPlayerDamagedDelegate);
+DECLARE_DELEGATE_OneParam(FOnPlayerDamagedDelegate, bool /*IsDead*/);
 
 /**
  * 
@@ -244,7 +244,7 @@ protected:
 	int32 MeleeAttackPower = 5;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float KnuckbackPower = 100.0f;
+	float KnuckbackPower = 150.0f;
 
 	bool IsMeleeAttackDelay = false;
 	float MeleeAttackDelay = 0.6f;

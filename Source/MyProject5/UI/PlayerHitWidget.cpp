@@ -18,10 +18,16 @@ void UPlayerHitWidget::NativeConstruct()
 	HitEffectImage->SetOpacity(0);
 }
 
-void UPlayerHitWidget::ShowHItEffect()
+void UPlayerHitWidget::ShowHItEffect(bool IsDead)
 {
 	StopEffectTimer();
 	StopResetTimer();
+
+	if (IsDead)
+	{
+		HitEffectImage->SetVisibility(ESlateVisibility::Hidden);
+		return;
+	}
 
 	HitEffectImage->SetOpacity(MaxAlpha);
 	GetWorld()->GetTimerManager().SetTimer(EffectHandle, FTimerDelegate::CreateLambda(

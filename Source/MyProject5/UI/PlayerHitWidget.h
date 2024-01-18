@@ -26,7 +26,7 @@ protected:
 // Show Effect
 protected:
 	UFUNCTION()
-	void ShowHItEffect();
+	void ShowHItEffect(bool IsDead);
 
 	void StopEffectTimer();
 	void StopResetTimer();

@@ -158,7 +158,7 @@ APlayerCharacter::APlayerCharacter()
 	{
 		ThrowGrenadeMontage = ThrowGrenadeMontageRef.Object;
 	}
-	static ConstructorHelpers::FObjectFinder<UAnimMontage> RifleReloadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_RifleReload.AM_RifleReload'"));
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> RifleReloadMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/PKH/AnimationStarter/AM_RifleReloading.AM_RifleReloading'"));
 	if (RifleReloadMontageRef.Object)
 	{
 		RifleReloadMontage = RifleReloadMontageRef.Object;
@@ -261,8 +261,8 @@ void APlayerCharacter::BeginPlay()
 	{
 		WeaponComponent->SetStaticMesh(MainWeaponMesh);
 		WeaponComponent->SetRelativeLocation(MainWeapon->GetWeaponLocation());
-		WeaponComponent->SetRelativeScale3D(MainWeapon->GetWeaponScale());
 		WeaponComponent->SetRelativeRotation(MainWeapon->GetWeaponRotation());
+		WeaponComponent->SetWorldScale3D(MainWeapon->GetWeaponScale());
 	}
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
@@ -414,12 +414,12 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 		WeaponComponent->SetStaticMesh(MainWeaponMesh);
 		WeaponComponent->SetRelativeLocation(MainWeapon->GetWeaponLocation());
 		WeaponComponent->SetRelativeRotation(MainWeapon->GetWeaponRotation());
-		WeaponComponent->SetRelativeScale3D(MainWeapon->GetWeaponScale());
+		WeaponComponent->SetWorldScale3D(MainWeapon->GetWeaponScale());
 	}
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
-	GunShotParticleComponent->SetRelativeScale3D(FVector(0.01f, 0.01f, 0.01f));
+	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f, 0.03f, 0.03f));
 }
 
 void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
@@ -444,7 +444,7 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 		WeaponComponent->SetStaticMesh(SubWeaponMesh);
 		WeaponComponent->SetRelativeLocation(SubWeapon->GetWeaponLocation());
 		WeaponComponent->SetRelativeRotation(SubWeapon->GetWeaponRotation());
-		WeaponComponent->SetRelativeScale3D(SubWeapon->GetWeaponScale());
+		WeaponComponent->SetWorldScale3D(SubWeapon->GetWeaponScale());
 	}
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
@@ -476,7 +476,7 @@ void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
 			WeaponComponent->SetStaticMesh(GrenadeHandMesh);
 			WeaponComponent->SetRelativeLocation(GrenadeHand->GetWeaponLocation());
 			WeaponComponent->SetRelativeRotation(GrenadeHand->GetWeaponRotation());
-			WeaponComponent->SetRelativeScale3D(GrenadeHand->GetWeaponScale());
+			WeaponComponent->SetWorldScale3D(GrenadeHand->GetWeaponScale());
 		}
 	}
 	else
@@ -512,7 +512,7 @@ void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction
 			WeaponComponent->SetStaticMesh(HealPackHandMesh);
 			WeaponComponent->SetRelativeLocation(HealPackHand->GetWeaponLocation());
 			WeaponComponent->SetRelativeRotation(HealPackHand->GetWeaponRotation());
-			WeaponComponent->SetRelativeScale3D(HealPackHand->GetWeaponScale());
+			WeaponComponent->SetWorldScale3D(HealPackHand->GetWeaponScale());
 		}
 	}
 	else
@@ -730,7 +730,7 @@ void APlayerCharacter::OnDamaged(int32 InDamage)
 	}
 
 	SetHp(CurHp - InDamage);
-	OnPlayerDamaged.ExecuteIfBound();
+	OnPlayerDamaged.ExecuteIfBound(IsDead);
 }
 
 
@@ -989,8 +989,8 @@ void APlayerCharacter::MeleeAttackHit()
 	FVector AttackCenterVec = GetActorLocation() + MeleeAttackMuzzleOffset + ForwardVec * GetCapsuleComponent()->GetUnscaledCapsuleRadius() * 1.5f;
 
 	TArray<FOverlapResult> OverlapResults;
-	bool IsHitted = GetWorld()->OverlapMultiByChannel(OverlapResults, AttackCenterVec, FQuat::MakeFromRotator(GetController()->GetControlRotation()),
-		ECollisionChannel::ECC_GameTraceChannel14, FCollisionShape::MakeBox(MeleeAttackBoxVec));
+	bool IsHitted = GetWorld()->OverlapMultiByProfile(OverlapResults, AttackCenterVec, FQuat::MakeFromRotator(GetController()->GetControlRotation()),
+														TEXT("Enemy"), FCollisionShape::MakeBox(MeleeAttackBoxVec));
 
 	if (IsHitted)
 	{
@@ -1007,7 +1007,14 @@ void APlayerCharacter::MeleeAttackHit()
 				DirectionVec.Normalize();
 
 				Zombie->OnKnuckback();
-				Zombie->LaunchCharacter(DirectionVec * KnuckbackPower, true, false);				
+				/*FVector force = DirectionVec * KnuckbackPower;
+				force = force.GetClampedToMaxSize(KnuckbackPower);
+				auto comp = OverlapResults[i].GetComponent();
+				if (comp && comp->IsSimulatingPhysics())
+				{
+					OverlapResults[i].GetComponent()->AddForceAtLocation(GetActorForwardVector() * KnuckbackPower, Zombie->GetActorLocation());
+				}*/
+				Zombie->SetActorLocation(Zombie->GetActorLocation() + DirectionVec * KnuckbackPower);
 				Zombie->OnDamaged(MeleeAttackPower);
 				UE_LOG(LogTemp, Log, TEXT("Melee Attack Hit: %d"), MeleeAttackPower);
 			}

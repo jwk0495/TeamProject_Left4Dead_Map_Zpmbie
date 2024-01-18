@@ -6,7 +6,7 @@
 AMainWeapon::AMainWeapon()
 {
 	AttackPower = 30;
-	WeaponLocation = FVector(29.878f, 5.40f, -28.30f);
-	WeaponRotation = FRotator(10.41f, 88.45f, 77.486f);
+	WeaponLocation = FVector(23.81f, 11.85f, -31.33f);
+	WeaponRotation = FRotator(11.45f, 93.43f, 78.43f);
 	WeaponScale = FVector(2.3f, 2.3f, 2.5f);
 }

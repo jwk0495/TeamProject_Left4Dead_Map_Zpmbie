@@ -78,7 +78,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UGameClearWidget> GameClearUIWidget;
 
-
 public:
 	void InitWidget(class APlayerCharacter* InPlayerCharacter);
 
