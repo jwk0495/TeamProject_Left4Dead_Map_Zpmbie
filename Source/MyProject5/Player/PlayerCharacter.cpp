@@ -24,6 +24,8 @@
 
 APlayerCharacter::APlayerCharacter()
 {
+	PrimaryActorTick.bCanEverTick = true;
+
 	// Camera
 	PlayerCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("PlayerCamera"));
 	PlayerCamera->SetupAttachment(RootComponent);
@@ -267,6 +269,15 @@ void APlayerCharacter::BeginPlay()
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
+	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f, 0.03f, 0.03f));
+}
+
+void APlayerCharacter::Tick(float Deltatime)
+{
+	if (IsClear)
+	{
+		SetActorLocation(GetActorLocation() + FVector::UpVector * Deltatime * 100);
+	}
 }
 
 AMyPlayerController* APlayerCharacter::GetMyController()
@@ -449,7 +460,7 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
-	GunShotParticleComponent->SetRelativeScale3D(FVector(0.05f, 0.05f, 0.04f));
+	GunShotParticleComponent->SetRelativeScale3D(FVector(0.1f, 0.1f, 0.1f));
 }
 
 void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
@@ -724,7 +735,7 @@ int APlayerCharacter::SetRemainHealPack(int32 NewRemainHealPack)
 
 void APlayerCharacter::OnDamaged(int32 InDamage)
 {
-	if (IsDead)
+	if (IsDead || IsClear)
 	{
 		return;
 	}
@@ -1051,7 +1062,16 @@ void APlayerCharacter::RemoveNearbyItem(AItemBase* OutItem)
 
 void APlayerCharacter::GameClear()
 {
+	IsClear = true;
+	PlayerCamera->AddRelativeLocation(FVector(-200, 0, 120));
+	AddControllerPitchInput(10);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+	WeaponComponent->SetStaticMesh(nullptr);
+
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+	GetCharacterMovement()->GravityScale = 0;
 	StopShoot();
 
 	GetMyController()->GameClear();

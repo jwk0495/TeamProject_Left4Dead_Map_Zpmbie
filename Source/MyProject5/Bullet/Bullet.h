@@ -26,6 +26,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UStaticMeshComponent> Mesh;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UParticleSystem> SparkVFX;
+
 	float BulletLifeTime = 3.0f;
 	int32 AttackPower = 0;
 

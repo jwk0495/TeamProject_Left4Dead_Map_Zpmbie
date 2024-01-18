@@ -39,6 +39,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsFalling = PlayerMovement->IsFalling();
 	bIsJumping = (bIsFalling & (MoveVelocity.Z > JumpThreshold));
 	bIsFiring = OwningPlayer->GetIsFiring();
+	bIsCrouching = OwningPlayer->GetIsCrouching();
 
 	bIsMainWeapon = OwningPlayer->GetIsMainWeapon();
 	bIsSubWeapon = OwningPlayer->GetIsSubWeapon();
@@ -46,4 +47,5 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	bIsHealPack = OwningPlayer->GetIsHealPack();
 
 	bIsDead = OwningPlayer->GetIsDead();
+	bIsClear = OwningPlayer->GetIsClear();
 }

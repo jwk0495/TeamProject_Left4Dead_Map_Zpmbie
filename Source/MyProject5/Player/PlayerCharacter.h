@@ -33,6 +33,8 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
+	virtual void Tick(float Deltatime) override;
+
 	class AMyPlayerController* GetMyController();
 
 protected:
@@ -207,10 +209,14 @@ public:
 public:
 	FORCEINLINE uint8 GetIsDead() const { return IsDead; }
 	FORCEINLINE uint8 GetIsFiring() const { return IsFiring; }
+	FORCEINLINE uint8 GetIsClear() const { return IsClear; }
+	FORCEINLINE uint8 GetIsCrouching() const { return IsCrouching; }
+
 	FORCEINLINE uint8 GetIsMainWeapon() const { return CurHand == EHandType::MainWeapon; }
 	FORCEINLINE uint8 GetIsSubWeapon() const { return CurHand == EHandType::SubWeapon; }
 	FORCEINLINE uint8 GetIsGrenade() const { return CurHand == EHandType::Grenade; }
 	FORCEINLINE uint8 GetIsHealPack() const { return CurHand == EHandType::HealPack; }
+	
 
 // Recoil
 protected:
@@ -296,6 +302,7 @@ protected:
 	int32 RemainHealPack = 1;
 
 	bool IsDead = false;
+	bool IsClear = false;
 
 public:
 	UFUNCTION()

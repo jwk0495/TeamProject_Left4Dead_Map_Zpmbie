@@ -6,6 +6,8 @@
 #include "GameFramework/ProjectileMovementComponent.h"
 #include "Components/StaticMeshComponent.h"
 #include "public/ZombieBase.h"
+#include "Kismet/GameplayStatics.h"
+#include "../../../../../../../Source/Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -55,7 +57,16 @@ void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 	if (Zombie)
 	{
 		Zombie->OnDamaged(AttackPower);
+
+		UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SparkVFX, SweepResult.ImpactPoint);
+		ParticleComp->CustomTimeDilation = 5;
+
 		UE_LOG(LogTemp, Log, TEXT("Bullet Hit: %d"), AttackPower);
+	}
+	else
+	{
+		UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SparkVFX, SweepResult.ImpactPoint);
+		ParticleComp->CustomTimeDilation = 0.3f;
 	}
 
 	Destroy();

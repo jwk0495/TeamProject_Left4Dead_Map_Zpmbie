@@ -170,12 +170,15 @@ void AMyPlayerController::GameOver()
 
 void AMyPlayerController::GameClear()
 {
-	// Hide some UI
+	// Hide UI
 	if (ProcessUIWidget->GetVisibility() == ESlateVisibility::Visible)
 	{
 		ProcessUIWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
 	CrosshairWidget->SetVisibility(ESlateVisibility::Hidden);
+	HpBar->SetVisibility(ESlateVisibility::Hidden);
+	AmmoCount->SetVisibility(ESlateVisibility::Hidden);
+	HitEffectUIWidget->SetVisibility(ESlateVisibility::Hidden);
 
 	// Show GameClear UI
 	AMyGameMode* Mode = Cast<AMyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));

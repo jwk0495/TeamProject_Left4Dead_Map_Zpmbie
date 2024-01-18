@@ -50,6 +50,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	uint8 bIsFalling : 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	uint8 bIsCrouching : 1;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	uint8 bIsFiring : 1;
@@ -68,4 +71,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	uint8 bIsDead: 1;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	uint8 bIsClear: 1;
 };
