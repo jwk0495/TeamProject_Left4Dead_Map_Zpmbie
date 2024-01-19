@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "UI/ClearAreaUIWidget.h"
@@ -12,7 +12,7 @@ void UClearAreaUIWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	LeftTimeText = Cast<UTextBlock>(GetWidgetFromName(TEXT("GameOver")));
+	LeftTimeText = Cast<UTextBlock>(GetWidgetFromName(TEXT("LeftTimeTxt")));
 	ensure(LeftTimeText);
 }
 
@@ -23,14 +23,13 @@ void UClearAreaUIWidget::ShowProcess(int32 NewLeftTime)
 		GetWorld()->GetTimerManager().ClearTimer(TextHandle);
 	}
 
-	LeftTimeText->SetText(FText::FromString(FString::Printf(TEXT("±¸Á¶±îÁö ³²Àº ½Ã°£: %dÃÊ"), NewLeftTime)));
-	LeftTimeText->SetVisibility(ESlateVisibility::Visible);
+	LeftTimeText->SetText(FText::FromString(FString::Printf(TEXT("êµ¬ì¡°ê¹Œì§€ ë‚¨ì€ ì‹œê°„: %dì´ˆ"), NewLeftTime)));
 	LeftTime = NewLeftTime;
 
 	GetWorld()->GetTimerManager().SetTimer(TextHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			--LeftTime;
-			LeftTimeText->SetText(FText::FromString(FString::Printf(TEXT("±¸Á¶±îÁö ³²Àº ½Ã°£: %dÃÊ"), NewLeftTime)));
+			LeftTimeText->SetText(FText::FromString(FString::Printf(TEXT("êµ¬ì¡°ê¹Œì§€ ë‚¨ì€ ì‹œê°„: %dì´ˆ"), LeftTime)));
 		}), 1.0f, true, 1.0f);
 }
 
@@ -40,5 +39,4 @@ void UClearAreaUIWidget::HideProcess()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TextHandle);
 	}
-	LeftTimeText->SetVisibility(ESlateVisibility::Hidden);
 }

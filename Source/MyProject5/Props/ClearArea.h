@@ -32,4 +32,6 @@ protected:
 
 	FTimerHandle ClearHandle;
 	APlayerCharacter* Player;
+
+	int32 ClearTime = 3;
 };

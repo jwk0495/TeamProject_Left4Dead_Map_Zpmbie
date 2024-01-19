@@ -78,6 +78,13 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UGameClearWidget> GameClearUIWidget;
 
+	// Clear Area UI
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<class UClearAreaUIWidget> ClearAreaUIClass;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class UClearAreaUIWidget> ClearAreaUIWidget;
+
 public:
 	void InitWidget(class APlayerCharacter* InPlayerCharacter);
 
@@ -88,4 +95,7 @@ public:
 	void GameOver();
 
 	void GameClear();
+
+	void ShowClearAreaUI(int32 NewTime);
+	void HideClearAreaUI();
 };

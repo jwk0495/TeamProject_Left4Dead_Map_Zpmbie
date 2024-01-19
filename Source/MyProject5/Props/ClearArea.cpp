@@ -6,6 +6,7 @@
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Player/PlayerCharacter.h"
+#include "Player/MyPlayerController.h"
 
 // Sets default values
 AClearArea::AClearArea()
@@ -38,12 +39,19 @@ void AClearArea::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 		return;
 	}
 
+	// UI
+	AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PlayerController)
+	{
+		PlayerController->ShowClearAreaUI(ClearTime);
+	}
+
 	Player = PlayerCharacter;
 	GetWorldTimerManager().SetTimer(ClearHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			Player->GameClear();
 		}
-	), 3.0f, false);
+	), ClearTime, false);
 }
 
 void AClearArea::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
@@ -52,6 +60,13 @@ void AClearArea::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 	if (nullptr == PlayerCharacter)
 	{
 		return;
+	}
+
+	// UI
+	AMyPlayerController* PlayerController = Cast<AMyPlayerController>(GetWorld()->GetFirstPlayerController());
+	if (PlayerController)
+	{
+		PlayerController->HideClearAreaUI();
 	}
 
 	if (ClearHandle.IsValid())

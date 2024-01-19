@@ -11,6 +11,7 @@
 #include "UI/PlayerHitWidget.h"
 #include "Kismet/GameplayStatics.h"
 #include "Game/MyGameMode.h"
+#include "UI/ClearAreaUIWidget.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -60,6 +61,12 @@ AMyPlayerController::AMyPlayerController()
 	if (GameClearUIRef.Class)
 	{
 		GameClearUIClass = GameClearUIRef.Class;
+	}
+
+	static ConstructorHelpers::FClassFinder<UClearAreaUIWidget> ClearAreaUIRef(TEXT("/Game/PKH/UI/WBP_ClearAreaUI.WBP_ClearAreaUI_C"));
+	if (ClearAreaUIRef.Class)
+	{
+		ClearAreaUIClass = ClearAreaUIRef.Class;
 	}
 }
 
@@ -121,6 +128,13 @@ void AMyPlayerController::BeginPlay()
 		GameClearUIWidget->AddToViewport();
 		GameClearUIWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	ClearAreaUIWidget = CreateWidget<UClearAreaUIWidget>(this, ClearAreaUIClass);
+	if (ClearAreaUIWidget)
+	{
+		ClearAreaUIWidget->AddToViewport();
+		ClearAreaUIWidget->SetVisibility(ESlateVisibility::Hidden);
+	}
 }
 
 void AMyPlayerController::InitWidget(APlayerCharacter* InPlayerCharacter)
@@ -179,6 +193,7 @@ void AMyPlayerController::GameClear()
 	HpBar->SetVisibility(ESlateVisibility::Hidden);
 	AmmoCount->SetVisibility(ESlateVisibility::Hidden);
 	HitEffectUIWidget->SetVisibility(ESlateVisibility::Hidden);
+	HideClearAreaUI();
 
 	// Show GameClear UI
 	AMyGameMode* Mode = Cast<AMyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
@@ -190,3 +205,16 @@ void AMyPlayerController::GameClear()
 	SetInputMode(GameMode);
 	SetShowMouseCursor(true);
 }
+
+void AMyPlayerController::ShowClearAreaUI(int32 NewTime)
+{
+	ClearAreaUIWidget->SetVisibility(ESlateVisibility::Visible);
+	ClearAreaUIWidget->ShowProcess(NewTime);
+}
+
+void AMyPlayerController::HideClearAreaUI()
+{
+	ClearAreaUIWidget->SetVisibility(ESlateVisibility::Hidden);
+	ClearAreaUIWidget->HideProcess();
+}
+
