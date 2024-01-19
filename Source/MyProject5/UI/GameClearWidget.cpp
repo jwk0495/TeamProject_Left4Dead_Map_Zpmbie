@@ -12,6 +12,8 @@ UGameClearWidget::UGameClearWidget(const FObjectInitializer& ObjectInitializer) 
 
 void UGameClearWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	ClearTimeText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ClearTimeTxt")));
 	ensure(ClearTimeText);
 

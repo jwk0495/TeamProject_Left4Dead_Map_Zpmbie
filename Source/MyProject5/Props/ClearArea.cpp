@@ -39,7 +39,7 @@ void AClearArea::OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor
 	}
 
 	Player = PlayerCharacter;
-	GetWorld()->GetTimerManager().SetTimer(ClearHandle, FTimerDelegate::CreateLambda(
+	GetWorldTimerManager().SetTimer(ClearHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			Player->GameClear();
 		}
@@ -56,7 +56,7 @@ void AClearArea::OnEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* 
 
 	if (ClearHandle.IsValid())
 	{
-		GetWorld()->GetTimerManager().ClearTimer(ClearHandle);
+		GetWorldTimerManager().ClearTimer(ClearHandle);
 	}
 	Player = nullptr;
 }

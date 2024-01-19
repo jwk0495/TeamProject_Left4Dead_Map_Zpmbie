@@ -12,6 +12,8 @@ UAmmoCountWidget::UAmmoCountWidget(const FObjectInitializer& ObjectInitializer) 
 
 void UAmmoCountWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	MainAmmoText = Cast<UTextBlock>(GetWidgetFromName(TEXT("MainAmmo")));
 	ensure(MainAmmoText);
 

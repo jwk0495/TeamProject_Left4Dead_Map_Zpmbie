@@ -12,6 +12,8 @@ UProcessUIWidget::UProcessUIWidget(const FObjectInitializer& ObjectInitializer) 
 
 void UProcessUIWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	ProcessText = Cast<UTextBlock>(GetWidgetFromName(TEXT("ProcessTxt")));
 	ensure(ProcessText);
 	

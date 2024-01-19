@@ -13,6 +13,8 @@ UCrosshairWidget::UCrosshairWidget(const FObjectInitializer& ObjectInitializer) 
 
 void UCrosshairWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+	
 	CrossUp = Cast<UImage>(GetWidgetFromName(TEXT("CrosshairUp")));
 	ensure(CrossUp);
 

@@ -12,6 +12,8 @@ UNearbyItemWidget::UNearbyItemWidget(const FObjectInitializer& ObjectInitializer
 
 void UNearbyItemWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	ItemText = Cast<UTextBlock>(GetWidgetFromName(TEXT("NearbyItemText")));
 	ensure(ItemText);
 

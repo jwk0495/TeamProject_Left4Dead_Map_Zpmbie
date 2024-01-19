@@ -13,6 +13,8 @@ UHpBarWidget::UHpBarWidget(const FObjectInitializer& ObjectInitializer) : Super(
 
 void UHpBarWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	HpBarWidget = Cast<UProgressBar>(GetWidgetFromName(TEXT("HpBar")));
 	ensure(HpBarWidget);
 	

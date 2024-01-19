@@ -11,6 +11,8 @@ UGameOverUIWidget::UGameOverUIWidget(const FObjectInitializer& ObjectInitilaizer
 
 void UGameOverUIWidget::NativeConstruct()
 {
+	Super::NativeConstruct();
+
 	GameOverText = Cast<UTextBlock>(GetWidgetFromName(TEXT("GameOver")));
 	ensure(GameOverText);
 
