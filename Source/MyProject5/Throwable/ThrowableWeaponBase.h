@@ -44,6 +44,13 @@ protected:
 
 	FTimerHandle LightHandle;
 
+protected:
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<UCameraShakeBase> ShakeClass;
+
+	float InnerShakeRadius = 1500.0f;
+	float OuterShakeRadius = 3000.0f;
+
 public:
 	void Throw(FVector DirectionVec);
 	

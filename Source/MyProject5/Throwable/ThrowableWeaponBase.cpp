@@ -9,6 +9,7 @@
 #include "Particles/ParticleSystemComponent.h"
 #include "public/ZombieBase.h"
 #include "Components/PointLightComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AThrowableWeaponBase::AThrowableWeaponBase()
@@ -49,6 +50,13 @@ AThrowableWeaponBase::AThrowableWeaponBase()
 	LightComponent = CreateDefaultSubobject<UPointLightComponent>(TEXT("PointLight"));
 	LightComponent->SetupAttachment(SphereComponent);
 	LightComponent->SetIntensity(0);
+
+	// Camera shake
+	static ConstructorHelpers::FClassFinder<UCameraShakeBase> CameraShakeRef(TEXT("/Game/PKH/Camera/BP_CameraShake_Grenade.BP_CameraShake_Grenade_C"));
+	if (CameraShakeRef.Class)
+	{
+		ShakeClass = CameraShakeRef.Class;
+	}
 }
 
 void AThrowableWeaponBase::BeginPlay()
@@ -90,6 +98,9 @@ void AThrowableWeaponBase::Explode()
 		}
 	}
 	
+	// Camera Shake
+	UGameplayStatics::PlayWorldCameraShake(GetWorld(), ShakeClass, GetActorLocation(), InnerShakeRadius, OuterShakeRadius);
+
 	// Destroy
 	FTimerHandle DestroyHandle;
 	GetWorld()->GetTimerManager().SetTimer(DestroyHandle, FTimerDelegate::CreateLambda(
