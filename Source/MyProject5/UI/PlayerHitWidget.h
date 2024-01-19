@@ -36,7 +36,7 @@ protected:
 	int32 Count = 1;
 
 	float MaxAlpha = 0.4f;
-	float DeltaAlpha = 0.2f;
+	float DeltaAlpha = 0.02f;
 
 // Delegate
 public:
