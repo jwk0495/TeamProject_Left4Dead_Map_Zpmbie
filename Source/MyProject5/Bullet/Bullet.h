@@ -27,10 +27,19 @@ protected:
 	TObjectPtr<class UStaticMeshComponent> Mesh;
 
 	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UParticleSystem> BloodVFX;
+
+	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UParticleSystem> SparkVFX;
+
+	// For Decal
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ADecalActor> BulletMarkClass;
 
 	float BulletLifeTime = 3.0f;
 	int32 AttackPower = 0;
+
+	int32 HeadShotRate = 3;
 
 public:
 	void Fire(FVector DirectionVec, int32 NewAttackPower);

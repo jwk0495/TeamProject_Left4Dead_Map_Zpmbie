@@ -30,5 +30,7 @@ protected:
 public:
 	void ShowProcess(int32 NewLeftTime);
 	void HideProcess();
+
+	void InitialAnnounce();
 	
 };

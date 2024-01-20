@@ -753,6 +753,8 @@ void APlayerCharacter::OnDie()
 
 	// Animation
 	PlayMontage(DeadMontage);
+	PlayerCamera->AddRelativeLocation(FVector(-100, 0, 200));
+	AddControllerPitchInput(-90);
 
 	// GameOver UI
 	GetMyController()->GameOver();

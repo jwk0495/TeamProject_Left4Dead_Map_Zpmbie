@@ -133,8 +133,9 @@ void AMyPlayerController::BeginPlay()
 	if (ClearAreaUIWidget)
 	{
 		ClearAreaUIWidget->AddToViewport();
-		ClearAreaUIWidget->SetVisibility(ESlateVisibility::Hidden);
 	}
+
+	ClearAreaUIWidget->InitialAnnounce();
 }
 
 void AMyPlayerController::InitWidget(APlayerCharacter* InPlayerCharacter)
@@ -175,6 +176,7 @@ void AMyPlayerController::GameOver()
 
 	// Show GameOver UI
 	GameOverUIWidget->SetVisibility(ESlateVisibility::Visible);
+	GameOverUIWidget->GameOver();
 
 	// InputMode change
 	FInputModeUIOnly GameMode;
@@ -208,13 +210,11 @@ void AMyPlayerController::GameClear()
 
 void AMyPlayerController::ShowClearAreaUI(int32 NewTime)
 {
-	ClearAreaUIWidget->SetVisibility(ESlateVisibility::Visible);
 	ClearAreaUIWidget->ShowProcess(NewTime);
 }
 
 void AMyPlayerController::HideClearAreaUI()
 {
-	ClearAreaUIWidget->SetVisibility(ESlateVisibility::Hidden);
 	ClearAreaUIWidget->HideProcess();
 }
 

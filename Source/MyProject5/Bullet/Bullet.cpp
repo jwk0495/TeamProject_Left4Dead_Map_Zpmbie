@@ -7,7 +7,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "public/ZombieBase.h"
 #include "Kismet/GameplayStatics.h"
-#include "../../../../../../../Source/Runtime/Engine/Classes/Particles/ParticleSystemComponent.h"
+#include "Particles/ParticleSystemComponent.h"
+#include "Components/CapsuleComponent.h"
 
 // Sets default values
 ABullet::ABullet()
@@ -34,7 +35,14 @@ ABullet::ABullet()
 		Mesh->SetStaticMesh(MeshRef.Object);
 	}
 	Mesh->SetupAttachment(SphereComponent);
-	Mesh->SetRelativeScale3D(FVector(0.01f, 0.01f, 0.01f));
+	Mesh->SetRelativeScale3D(FVector(0.01f));
+
+	// Decal
+	static ConstructorHelpers::FClassFinder<ADecalActor> BulletMarkRef(TEXT("/Game/PKH/Decal/BP_BullerMark.BP_BullerMark_C"));
+	if (BulletMarkRef.Class)
+	{
+		BulletMarkClass = BulletMarkRef.Class;
+	}
 }
 
 void ABullet::BeginPlay()
@@ -52,21 +60,46 @@ void ABullet::Fire(FVector DirectionVec, int32 NewAttackPower)
 
 void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::White, TEXT("Bullet Overlap"));
 	// when zombie hit
 	AZombieBase* Zombie = Cast<AZombieBase>(OtherActor);
 	if (Zombie)
 	{
-		Zombie->OnDamaged(AttackPower);
+		float ImpactHeight = SweepResult.ImpactPoint.Z;
+		float ZombieHeadHeight = Zombie->GetActorLocation().Z;
+		UCapsuleComponent* ZombieColl = Cast<UCapsuleComponent>(OtherComp);
+		if (ZombieColl)
+		{
+			ZombieHeadHeight += ZombieColl->GetUnscaledCapsuleHalfHeight() * 0.45f;
+		}
 
-		UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SparkVFX, SweepResult.ImpactPoint);
-		ParticleComp->CustomTimeDilation = 5;
+		if (ImpactHeight >= ZombieHeadHeight) // Head Shot
+		{
+			Zombie->OnDamaged(AttackPower * HeadShotRate); 
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("HeadShot"));
+
+			UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFX, SweepResult.ImpactPoint, FRotator(0));
+			ParticleComp->CustomTimeDilation = 4;
+		}
+		else // Normal Shot
+		{
+			Zombie->OnDamaged(AttackPower);
+			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("NormalShot"));
+
+			UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFX, SweepResult.ImpactPoint, FRotator(0), FVector(0.5f));
+			ParticleComp->CustomTimeDilation = 5;
+		}
 
 		UE_LOG(LogTemp, Log, TEXT("Bullet Hit: %d"), AttackPower);
 	}
 	else
 	{
 		UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SparkVFX, SweepResult.ImpactPoint);
-		ParticleComp->CustomTimeDilation = 0.3f;
+		ParticleComp->CustomTimeDilation = 4.0f;
+
+		// Decal
+		FActorSpawnParameters Param;
+		GetWorld()->SpawnActor<ADecalActor>(BulletMarkClass, SweepResult.ImpactPoint, FRotator(0), Param);
 	}
 
 	Destroy();

@@ -25,6 +25,7 @@ void UClearAreaUIWidget::ShowProcess(int32 NewLeftTime)
 
 	LeftTimeText->SetText(FText::FromString(FString::Printf(TEXT("구조까지 남은 시간: %d초"), NewLeftTime)));
 	LeftTime = NewLeftTime;
+	LeftTimeText->SetVisibility(ESlateVisibility::Visible);
 
 	GetWorld()->GetTimerManager().SetTimer(TextHandle, FTimerDelegate::CreateLambda(
 		[&]() {
@@ -39,4 +40,16 @@ void UClearAreaUIWidget::HideProcess()
 	{
 		GetWorld()->GetTimerManager().ClearTimer(TextHandle);
 	}
+	LeftTimeText->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UClearAreaUIWidget::InitialAnnounce()
+{
+	LeftTimeText->SetText(FText::FromString(FString::Printf(TEXT("목표: 랑데부 포인트를 향해 전진하라"))));
+
+	FTimerHandle Handle;
+	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
+		[&]() {
+			LeftTimeText->SetVisibility(ESlateVisibility::Hidden);
+		}), 5.0f, false);
 }

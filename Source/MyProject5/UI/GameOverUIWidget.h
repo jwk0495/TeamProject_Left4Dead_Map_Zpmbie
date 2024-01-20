@@ -21,11 +21,17 @@ protected:
 	virtual void NativeConstruct() override;
 
 	UPROPERTY()
-	TObjectPtr<class UTextBlock> GameOverText;
+	TObjectPtr<class UTextBlock> SurvivalTimeText;
+
+	UPROPERTY()
+	TObjectPtr<class UTextBlock> KillCountText;
 
 	UPROPERTY()
 	TObjectPtr<class UButton> Button_Restart;
 
 	UPROPERTY()
 	TObjectPtr<class UButton> Button_Exit;
+
+public:
+	void GameOver();
 };
