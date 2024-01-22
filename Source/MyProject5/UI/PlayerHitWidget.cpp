@@ -15,7 +15,12 @@ void UPlayerHitWidget::NativeConstruct()
 
 	HitEffectImage = Cast<UImage>(GetWidgetFromName(TEXT("HitEffectImg")));
 	ensure(HitEffectImage);
+
 	HitEffectImage->SetOpacity(0);
+
+	LowHealthFilterImage = Cast<UImage>(GetWidgetFromName(TEXT("LowHealthFilter")));
+	ensure(LowHealthFilterImage);
+	LowHealthFilterImage->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UPlayerHitWidget::ShowHItEffect(bool IsDead)
@@ -67,4 +72,9 @@ void UPlayerHitWidget::SetDelegate(class APlayerCharacter* PlayerCharacter)
 	{
 		PlayerCharacter->OnPlayerDamaged.BindUObject(this, &UPlayerHitWidget::ShowHItEffect);
 	}
+}
+
+void UPlayerHitWidget::SetLowHealthFilter(bool IsLowHealth)
+{
+	LowHealthFilterImage->SetVisibility(IsLowHealth ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 }

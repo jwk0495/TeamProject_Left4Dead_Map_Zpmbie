@@ -60,7 +60,6 @@ void ABullet::Fire(FVector DirectionVec, int32 NewAttackPower)
 
 void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::White, TEXT("Bullet Overlap"));
 	// when zombie hit
 	AZombieBase* Zombie = Cast<AZombieBase>(OtherActor);
 	if (Zombie)
@@ -79,14 +78,14 @@ void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("HeadShot"));
 
 			UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFX, SweepResult.ImpactPoint, FRotator(0));
-			ParticleComp->CustomTimeDilation = 4;
+			ParticleComp->CustomTimeDilation = 3;
 		}
 		else // Normal Shot
 		{
 			Zombie->OnDamaged(AttackPower);
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Green, TEXT("NormalShot"));
 
-			UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFX, SweepResult.ImpactPoint, FRotator(0), FVector(0.5f));
+			UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFX, SweepResult.ImpactPoint, FRotator(0), FVector(0.5f, 0.5f, 0.3f));
 			ParticleComp->CustomTimeDilation = 5;
 		}
 
@@ -94,8 +93,11 @@ void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 	}
 	else
 	{
-		UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SparkVFX, SweepResult.ImpactPoint);
-		ParticleComp->CustomTimeDilation = 4.0f;
+		if (FMath::RandRange(0, 4) < 2)
+		{
+			UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), SparkVFX, SweepResult.ImpactPoint);
+			ParticleComp->CustomTimeDilation = 5.0f;
+		}
 
 		// Decal
 		FActorSpawnParameters Param;

@@ -296,7 +296,7 @@ protected:
 	int32 MaxSubAmmo = 12;
 
 	UPROPERTY(EditAnywhere)
-	int32 RemainGrenade = 3;
+	int32 RemainGrenade = 1;
 
 	UPROPERTY(EditAnywhere)
 	int32 RemainHealPack = 1;
@@ -387,4 +387,10 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class USoundBase> SFX_Explosion;
+
+	// LowHealth
+	FTimerHandle LowHealthHandle;
+
+	UPROPERTY()
+	TObjectPtr<class UAudioComponent> LowHealthComp;
 };

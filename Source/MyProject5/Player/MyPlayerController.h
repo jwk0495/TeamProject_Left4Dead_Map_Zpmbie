@@ -98,4 +98,6 @@ public:
 
 	void ShowClearAreaUI(int32 NewTime);
 	void HideClearAreaUI();
+
+	void SetLowHealthFilter(bool IsLowHealth);
 };

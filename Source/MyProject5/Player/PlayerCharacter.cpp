@@ -21,6 +21,8 @@
 #include "Engine/StaticMeshSocket.h"
 #include "Particles/ParticleSystemComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
+#include "Props/HelicopterPawn.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -269,10 +271,12 @@ void APlayerCharacter::BeginPlay()
 
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
-	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f, 0.03f, 0.03f));
+	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f));
 
 	// Sound
 	UGameplayStatics::PlaySound2D(GetWorld(), SFX_Start);
+
+	LowHealthComp = UGameplayStatics::SpawnSound2D(GetWorld(), SFX_LowHealth);
 }
 
 void APlayerCharacter::Tick(float Deltatime)
@@ -686,11 +690,27 @@ float APlayerCharacter::GetMoveSpeed() const
 int APlayerCharacter::SetHp(int32 NewHp)
 {
 	CurHp = FMath::Clamp(NewHp, 0, MaxHp);
-	OnHpChanged.ExecuteIfBound((float)CurHp / MaxHp);
+	float HpRate = (float)CurHp / MaxHp;
+	OnHpChanged.ExecuteIfBound(HpRate);
 	if (CurHp == 0)
 	{
 		OnDie();
 	}
+	else
+	{
+		if (HpRate <= 0.3f && false == LowHealthHandle.IsValid())
+		{
+			GetMyController()->SetLowHealthFilter(true);
+			GetWorldTimerManager().SetTimer(LowHealthHandle, FTimerDelegate::CreateLambda( [&]() { LowHealthComp->Play(); }), 5.0f, true);
+		}
+		else if (HpRate > 0.3f && LowHealthHandle.IsValid())
+		{
+			GetMyController()->SetLowHealthFilter(false);
+			GetWorldTimerManager().ClearTimer(LowHealthHandle);
+			LowHealthComp->Stop();
+		}
+	}
+	
 
 	return CurHp;
 }
@@ -1085,5 +1105,11 @@ void APlayerCharacter::GameClear()
 	GetCharacterMovement()->GravityScale = 0;
 	StopShoot();
 
-	GetMyController()->GameClear();
+	AMyPlayerController* Mycontroller = GetMyController();
+	Mycontroller->GameClear();
+
+	FActorSpawnParameters Params;
+	AHelicopterPawn* Helicopter = Cast<AHelicopterPawn>(GetWorld()->SpawnActor<AHelicopterPawn>(AHelicopterPawn::StaticClass(), FVector(0), FRotator(0), Params));
+	Mycontroller->UnPossess();
+	Mycontroller->Possess(Helicopter);
 }

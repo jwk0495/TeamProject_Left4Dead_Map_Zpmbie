@@ -23,6 +23,9 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UImage> HitEffectImage;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class UImage> LowHealthFilterImage;
+
 // Show Effect
 protected:
 	UFUNCTION()
@@ -41,4 +44,6 @@ protected:
 // Delegate
 public:
 	void SetDelegate(class APlayerCharacter* PlayerCharacter);
+
+	void SetLowHealthFilter(bool IsLowHealth);
 };

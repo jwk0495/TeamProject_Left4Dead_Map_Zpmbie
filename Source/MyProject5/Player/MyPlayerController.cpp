@@ -78,6 +78,12 @@ void AMyPlayerController::BeginPlay()
 	SetInputMode(GameMode);
 	SetShowMouseCursor(false);
 
+	HitEffectUIWidget = CreateWidget<UPlayerHitWidget>(this, HitEffectUIClass);
+	if (HitEffectUIWidget)
+	{
+		HitEffectUIWidget->AddToViewport();
+	}
+
 	HpBar = CreateWidget<UHpBarWidget>(this, HpBarClass);
 	if (HpBar)
 	{
@@ -107,12 +113,6 @@ void AMyPlayerController::BeginPlay()
 	if (NearbyItemUIWidget)
 	{
 		NearbyItemUIWidget->AddToViewport();
-	}
-
-	HitEffectUIWidget = CreateWidget<UPlayerHitWidget>(this, HitEffectUIClass);
-	if (HitEffectUIWidget)
-	{
-		HitEffectUIWidget->AddToViewport();
 	}
 
 	GameOverUIWidget = CreateWidget<UGameOverUIWidget>(this, GameOverUIClass);
@@ -218,3 +218,7 @@ void AMyPlayerController::HideClearAreaUI()
 	ClearAreaUIWidget->HideProcess();
 }
 
+void AMyPlayerController::SetLowHealthFilter(bool IsLowHealth)
+{
+	HitEffectUIWidget->SetLowHealthFilter(IsLowHealth);
+}
