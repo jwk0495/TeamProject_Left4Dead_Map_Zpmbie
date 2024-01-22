@@ -270,6 +270,9 @@ void APlayerCharacter::BeginPlay()
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f, 0.03f, 0.03f));
+
+	// Sound
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_Start);
 }
 
 void APlayerCharacter::Tick(float Deltatime)
@@ -381,6 +384,10 @@ void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 	{
 		PlayMontage(PistolReloadMontage);
 	}
+
+	// Sound
+	USoundBase* ReloadSound = SFX_Reload[FMath::RandRange(0, SFX_Reload.Num() - 1)];
+	UGameplayStatics::PlaySound2D(GetWorld(), ReloadSound);
 }
 
 void APlayerCharacter::CrouchStart(const FInputActionValue& InputAction)
@@ -740,10 +747,13 @@ void APlayerCharacter::OnDamaged(int32 InDamage)
 		return;
 	}
 
+	// Sound
+	USoundBase* Damaged = SFX_OnDamaged[FMath::RandRange(0, SFX_OnDamaged.Num() - 1)];
+	UGameplayStatics::PlaySound2D(GetWorld(), Damaged);
+
 	SetHp(CurHp - InDamage);
 	OnPlayerDamaged.ExecuteIfBound(IsDead);
 }
-
 
 void APlayerCharacter::OnDie()
 {
@@ -762,10 +772,6 @@ void APlayerCharacter::OnDie()
 
 void APlayerCharacter::ShowProcessUI()
 {
-	/*if (IsReloading)
-	{
-		GetMyController()->ShowProcessUI(FText::FromString(TEXT("Reloading...")), ReloadDelayTime);
-	}*/
 	if (IsHealing)
 	{
 		GetMyController()->ShowProcessUI(FText::FromString(TEXT("Healing...")), HealMontage->GetPlayLength());
@@ -874,6 +880,9 @@ void APlayerCharacter::OneShot()
 	// Particle
 	GunShotParticleComponent->SetActive(false);
 	GunShotParticleComponent->SetActive(true);
+
+	// Sound
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_RifleFire);
 }
 
 void APlayerCharacter::Shoot()
