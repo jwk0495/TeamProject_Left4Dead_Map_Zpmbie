@@ -101,7 +101,9 @@ void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 
 		// Decal
 		FActorSpawnParameters Param;
-		GetWorld()->SpawnActor<ADecalActor>(BulletMarkClass, SweepResult.ImpactPoint, FRotator(0), Param);
+		FRotator r = SweepResult.ImpactNormal.Rotation();
+		r.Pitch += 90;
+		GetWorld()->SpawnActor<ADecalActor>(BulletMarkClass, SweepResult.ImpactPoint, r, Param);
 	}
 
 	Destroy();

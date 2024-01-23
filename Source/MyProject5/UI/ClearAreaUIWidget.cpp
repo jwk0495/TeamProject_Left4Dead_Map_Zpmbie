@@ -46,10 +46,9 @@ void UClearAreaUIWidget::HideProcess()
 void UClearAreaUIWidget::InitialAnnounce()
 {
 	LeftTimeText->SetText(FText::FromString(FString::Printf(TEXT("목표: 랑데부 포인트를 향해 전진하라"))));
+}
 
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
-		[&]() {
-			LeftTimeText->SetVisibility(ESlateVisibility::Hidden);
-		}), 5.0f, false);
+void UClearAreaUIWidget::EndAnnounce()
+{
+	LeftTimeText->SetVisibility(ESlateVisibility::Hidden);
 }

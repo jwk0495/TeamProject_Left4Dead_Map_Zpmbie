@@ -45,7 +45,7 @@ void AHelicopterPawn::Tick(float DeltaTime)
 	if (false == IsLanded)
 	{
 		SetActorLocation(FMath::VInterpTo(GetActorLocation(), LandLocation, DeltaTime, 1.0f));
-		if (FVector::Distance(GetActorLocation(), LandLocation) < 10.0f)
+		if (FVector::Distance(GetActorLocation(), LandLocation) < 15.0f)
 		{
 			IsLanded = true;
 		}
@@ -56,7 +56,10 @@ void AHelicopterPawn::Tick(float DeltaTime)
 		FVector Diff = NextLocation - GetActorLocation();
 		SetActorLocation(NextLocation);
 
-		HelicopterCamera->AddRelativeLocation(Diff * DeltaTime);
+		if (HelicopterCamera->GetRelativeLocation().X < 67)
+		{
+			HelicopterCamera->AddRelativeLocation(-Diff * DeltaTime * 0.4f);
+		}
 		HelicopterCamera->SetRelativeRotation(FMath::RInterpTo(FRotator(-30, 90, 0), FRotator(30, 90, 0), DeltaTime, 0.3f));
 	}
 }

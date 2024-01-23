@@ -222,3 +222,8 @@ void AMyPlayerController::SetLowHealthFilter(bool IsLowHealth)
 {
 	HitEffectUIWidget->SetLowHealthFilter(IsLowHealth);
 }
+
+void AMyPlayerController::EndAnnounce()
+{
+	ClearAreaUIWidget->EndAnnounce();
+}

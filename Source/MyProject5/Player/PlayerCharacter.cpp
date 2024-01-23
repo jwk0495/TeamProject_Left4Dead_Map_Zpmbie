@@ -240,6 +240,8 @@ void APlayerCharacter::BeginPlay()
 	SetHp(MaxHp);
 	SetCurMainAmmo(MaxMainAmmo);
 	SetCurSubAmmo(MaxSubAmmo);
+	SetRemainGrenade(1);
+	SetRemainHealPack(1);
 	CurShootAccurancy = MaxShootAccurancy;
 
 	// Weapon Actor
@@ -277,14 +279,37 @@ void APlayerCharacter::BeginPlay()
 	UGameplayStatics::PlaySound2D(GetWorld(), SFX_Start);
 
 	LowHealthComp = UGameplayStatics::SpawnSound2D(GetWorld(), SFX_LowHealth);
+	LowHealthComp->Stop();
+	LowHealthComp->bAutoDestroy = false;
+
+	// Announce
+	/*InitialCameraLocation = PlayerCamera->GetComponentLocation();
+	PlayerCamera->AddRelativeLocation(FVector(-5000, 0, 4000));
+	AddControllerPitchInput(10);
+	GetCharacterMovement()->SetMovementMode(MOVE_None);
+
+	FTimerHandle AnnounceHandle;
+	GetWorldTimerManager().SetTimer(AnnounceHandle, FTimerDelegate::CreateLambda(
+		[&]() {
+			IsAnnouncing = true;
+		}), 1.5f, false);*/
 }
 
 void APlayerCharacter::Tick(float Deltatime)
 {
-	if (IsClear)
+	/*if (IsAnnouncing)
 	{
-		SetActorLocation(GetActorLocation() + FVector::UpVector * Deltatime * 100);
-	}
+		PlayerCamera->SetWorldLocation(FMath::VInterpTo(PlayerCamera->GetComponentLocation(), DestinationLocation, Deltatime, 0.4f));
+		if (FVector::Distance(PlayerCamera->GetComponentLocation(), DestinationLocation) < 800.0f)
+		{
+			IsAnnouncing = false;
+			PlayerCamera->SetWorldLocation(InitialCameraLocation);
+			AddControllerPitchInput(-10);
+			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
+
+			GetMyController()->EndAnnounce();
+		}
+	}*/
 }
 
 AMyPlayerController* APlayerCharacter::GetMyController()
@@ -309,7 +334,7 @@ void APlayerCharacter::Move(const FInputActionValue& InputAction)
 
 void APlayerCharacter::Look(const FInputActionValue& InputAction)
 {
-	if (IsDead)
+	if (IsDead || IsAnnouncing)
 	{
 		return;
 	}
@@ -360,7 +385,7 @@ void APlayerCharacter::AttackEnd(const FInputActionValue& InputAction)
 
 void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 {
-	if (IsReloading || IsFiring || IsDead)
+	if (IsReloading || IsFiring || IsMeleeAttackDelay || IsDead)
 	{
 		return;
 	}
@@ -701,6 +726,7 @@ int APlayerCharacter::SetHp(int32 NewHp)
 		if (HpRate <= 0.3f && false == LowHealthHandle.IsValid())
 		{
 			GetMyController()->SetLowHealthFilter(true);
+			LowHealthComp->Play();
 			GetWorldTimerManager().SetTimer(LowHealthHandle, FTimerDelegate::CreateLambda( [&]() { LowHealthComp->Play(); }), 5.0f, true);
 		}
 		else if (HpRate > 0.3f && LowHealthHandle.IsValid())
@@ -781,10 +807,21 @@ void APlayerCharacter::OnDie()
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	StopShoot();
 
+	// Low Health Filter
+	GetMyController()->SetLowHealthFilter(false);
+	GetWorldTimerManager().ClearTimer(LowHealthHandle);
+	LowHealthComp->Stop();
+
 	// Animation
 	PlayMontage(DeadMontage);
 	PlayerCamera->AddRelativeLocation(FVector(-100, 0, 200));
 	AddControllerPitchInput(-90);
+
+	// Sound
+	if (SFX_OnDie)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_OnDie);
+	}
 
 	// GameOver UI
 	GetMyController()->GameOver();
@@ -1008,7 +1045,7 @@ void APlayerCharacter::ThrowGrenade()
 	AThrowableWeaponBase* Throwable = GetWorld()->SpawnActor<AThrowableWeaponBase>(GrenadeClass, ThrowLocation, ThrowRotator, Params);
 	if (Throwable)
 	{
-		Throwable->Throw(ThrowDirVec); UE_LOG(LogTemp, Log, TEXT("%f, %f, %f"), ThrowDirVec.X, ThrowDirVec.Y, ThrowDirVec.Z);
+		Throwable->Throw(ThrowDirVec);
 	}
 	SetRemainGrenade(RemainGrenade - 1);
 	
@@ -1094,22 +1131,25 @@ void APlayerCharacter::RemoveNearbyItem(AItemBase* OutItem)
 void APlayerCharacter::GameClear()
 {
 	IsClear = true;
-	PlayerCamera->AddRelativeLocation(FVector(-200, 0, 120));
-	AddControllerPitchInput(10);
 
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->StopAllMontages(0.0f);
 	WeaponComponent->SetStaticMesh(nullptr);
 
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	GetCharacterMovement()->GravityScale = 0;
 	StopShoot();
 
 	AMyPlayerController* Mycontroller = GetMyController();
 	Mycontroller->GameClear();
 
+	FTimerHandle ExitHandle;
+	GetWorldTimerManager().SetTimer(ExitHandle, FTimerDelegate::CreateLambda(
+		[&]() {
+			GetMesh()->SetHiddenInGame(true);
+		}), 3.0f, false);
+
 	FActorSpawnParameters Params;
-	AHelicopterPawn* Helicopter = Cast<AHelicopterPawn>(GetWorld()->SpawnActor<AHelicopterPawn>(AHelicopterPawn::StaticClass(), FVector(0), FRotator(0), Params));
+	AHelicopterPawn* Helicopter = Cast<AHelicopterPawn>(GetWorld()->SpawnActor<AHelicopterPawn>(AHelicopterPawn::StaticClass(), FVector(43103, 10469, 2451), FRotator(0, 110, 0), Params));
 	Mycontroller->UnPossess();
 	Mycontroller->Possess(Helicopter);
 }

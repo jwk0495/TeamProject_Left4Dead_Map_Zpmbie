@@ -27,8 +27,8 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UCameraComponent> HelicopterCamera;
 
-	FVector LandLocation = FVector(342, 106, 1880);
-	FVector DestLocation = FVector(5112, 106, 6323);
+	FVector LandLocation = FVector(39056, 8996, 121);
+	FVector DestLocation = FVector(20264, 2156, 4558);
 	float LandAlpha = 0;
 	float DestAlpha = 0;
 	bool IsLanded = false;

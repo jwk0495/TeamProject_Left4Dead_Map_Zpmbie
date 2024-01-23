@@ -32,5 +32,6 @@ public:
 	void HideProcess();
 
 	void InitialAnnounce();
+	void EndAnnounce();
 	
 };

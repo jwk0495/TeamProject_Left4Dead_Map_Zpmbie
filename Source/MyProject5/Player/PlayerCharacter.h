@@ -304,6 +304,10 @@ protected:
 	bool IsDead = false;
 	bool IsClear = false;
 
+	bool IsAnnouncing = false;
+	FVector InitialCameraLocation;
+	FVector DestinationLocation = FVector(37000, 8900, 1500);
+
 public:
 	UFUNCTION()
 	int SetHp(int32 NewHp);
@@ -374,6 +378,9 @@ protected:
 	TArray<TObjectPtr<class USoundBase>> SFX_Reload;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> SFX_OnDie;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class USoundBase> SFX_Start;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -388,9 +395,24 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class USoundBase> SFX_Explosion;
 
-	// LowHealth
-	FTimerHandle LowHealthHandle;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> BGM_Normal;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> BGM_GameOver;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> BGM_GameClear;
+
+	// Component
 	UPROPERTY()
 	TObjectPtr<class UAudioComponent> LowHealthComp;
+
+	UPROPERTY()
+	TObjectPtr<class UAudioComponent> BgmComp;
+
+	// LowHealth Handle
+	FTimerHandle LowHealthHandle;
+
+	
 };

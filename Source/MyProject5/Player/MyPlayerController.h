@@ -100,4 +100,6 @@ public:
 	void HideClearAreaUI();
 
 	void SetLowHealthFilter(bool IsLowHealth);
+
+	void EndAnnounce();
 };
