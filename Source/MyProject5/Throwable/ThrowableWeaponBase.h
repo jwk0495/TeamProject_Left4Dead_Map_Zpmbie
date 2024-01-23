@@ -56,4 +56,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	void Explode();
+
+// Sound
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> SFX_Explosion;
 };

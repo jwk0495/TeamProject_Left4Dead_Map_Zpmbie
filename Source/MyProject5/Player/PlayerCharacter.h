@@ -393,7 +393,16 @@ protected:
 	TObjectPtr<class USoundBase> SFX_PistolFire;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<class USoundBase> SFX_Explosion;
+	TObjectPtr<class USoundBase> SFX_ReloadRifle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> SFX_ReloadPistol;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> SFX_ChangeToRifle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> SFX_ChangeToPistol;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class USoundBase> BGM_Normal;

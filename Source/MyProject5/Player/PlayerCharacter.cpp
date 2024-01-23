@@ -282,6 +282,9 @@ void APlayerCharacter::BeginPlay()
 	LowHealthComp->Stop();
 	LowHealthComp->bAutoDestroy = false;
 
+	BgmComp = UGameplayStatics::SpawnSound2D(GetWorld(), BGM_Normal);
+	BgmComp->bAutoDestroy = false;
+
 	// Announce
 	/*InitialCameraLocation = PlayerCamera->GetComponentLocation();
 	PlayerCamera->AddRelativeLocation(FVector(-5000, 0, 4000));
@@ -408,10 +411,12 @@ void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 	if (CurHand == EHandType::MainWeapon)
 	{
 		PlayMontage(RifleReloadMontage);
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_ReloadRifle);
 	}
 	else
 	{
 		PlayMontage(PistolReloadMontage);
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_ReloadPistol);
 	}
 
 	// Sound
@@ -467,6 +472,9 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f, 0.03f, 0.03f));
+
+	// Sound
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_ChangeToRifle);
 }
 
 void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
@@ -497,6 +505,9 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	GunShotParticleComponent->SetRelativeScale3D(FVector(0.1f, 0.1f, 0.1f));
+
+	// Sound
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_ChangeToPistol);
 }
 
 void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
@@ -818,10 +829,11 @@ void APlayerCharacter::OnDie()
 	AddControllerPitchInput(-90);
 
 	// Sound
-	if (SFX_OnDie)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), SFX_OnDie);
-	}
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_OnDie);
+	
+	BgmComp->Stop();
+	BgmComp->SetSound(BGM_GameOver);
+	BgmComp->Play();
 
 	// GameOver UI
 	GetMyController()->GameOver();
@@ -916,11 +928,13 @@ void APlayerCharacter::OneShot()
 
 	if (CurHand == EHandType::MainWeapon)
 	{
-		SetCurMainAmmo(CurMainAmmo - 1);;
+		SetCurMainAmmo(CurMainAmmo - 1);
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_RifleFire, 1.2f);
 	}
 	else
 	{
-		SetCurSubAmmo(CurSubAmmo - 1);;
+		SetCurSubAmmo(CurSubAmmo - 1);
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_PistolFire, 0.8f);
 	}
 
 	// Accuracy
@@ -1142,11 +1156,15 @@ void APlayerCharacter::GameClear()
 	AMyPlayerController* Mycontroller = GetMyController();
 	Mycontroller->GameClear();
 
+	BgmComp->Stop();
+	BgmComp->SetSound(BGM_GameClear);
+	BgmComp->Play();
+
 	FTimerHandle ExitHandle;
 	GetWorldTimerManager().SetTimer(ExitHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			GetMesh()->SetHiddenInGame(true);
-		}), 3.0f, false);
+		}), 4.0f, false);
 
 	FActorSpawnParameters Params;
 	AHelicopterPawn* Helicopter = Cast<AHelicopterPawn>(GetWorld()->SpawnActor<AHelicopterPawn>(AHelicopterPawn::StaticClass(), FVector(43103, 10469, 2451), FRotator(0, 110, 0), Params));

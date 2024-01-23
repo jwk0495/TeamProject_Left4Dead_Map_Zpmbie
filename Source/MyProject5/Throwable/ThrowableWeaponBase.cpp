@@ -81,7 +81,7 @@ void AThrowableWeaponBase::Explode()
 	bool IsHit = GetWorld()->OverlapMultiByProfile(OverlapResults, GetActorLocation(), FQuat::Identity,
 									               TEXT("Enemy"), FCollisionShape::MakeSphere(ExplodeRadius));
 
-	DrawDebugSphere(GetWorld(), GetActorLocation(), ExplodeRadius, 16, FColor::Red, false, 0.5f);
+	//DrawDebugSphere(GetWorld(), GetActorLocation(), ExplodeRadius, 16, FColor::Red, false, 0.5f);
 	ParticleComponent->SetActive(true);
 
 	if (IsHit)
@@ -100,6 +100,9 @@ void AThrowableWeaponBase::Explode()
 	
 	// Camera Shake
 	UGameplayStatics::PlayWorldCameraShake(GetWorld(), ShakeClass, GetActorLocation(), InnerShakeRadius, OuterShakeRadius);
+
+	// Sound
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_Explosion, 1.2f);
 
 	// Destroy
 	FTimerHandle DestroyHandle;
