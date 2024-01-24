@@ -33,6 +33,9 @@ protected:
 	TObjectPtr<class UPointLightComponent> LightComponent;
 
 	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USoundAttenuation> SoundSetting;
+
+	UPROPERTY(EditAnywhere)
 	int32 AttackPower = 0;
 
 	float ExplodeDelay = 3.0f;

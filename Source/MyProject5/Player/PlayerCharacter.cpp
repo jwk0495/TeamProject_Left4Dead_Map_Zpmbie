@@ -929,12 +929,12 @@ void APlayerCharacter::OneShot()
 	if (CurHand == EHandType::MainWeapon)
 	{
 		SetCurMainAmmo(CurMainAmmo - 1);
-		UGameplayStatics::PlaySound2D(GetWorld(), SFX_RifleFire, 1.2f);
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_RifleFire, 1.3f);
 	}
 	else
 	{
 		SetCurSubAmmo(CurSubAmmo - 1);
-		UGameplayStatics::PlaySound2D(GetWorld(), SFX_PistolFire, 0.8f);
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_PistolFire, 0.7f);
 	}
 
 	// Accuracy
@@ -1029,6 +1029,11 @@ void APlayerCharacter::ReloadComplete()
 	IsReloading = false;
 
 	UE_LOG(LogTemp, Log, TEXT("%d / %d"), CurMainAmmo, CurRemainMainAmmo);
+}
+
+bool APlayerCharacter::IsDeadOrClear()
+{
+	return IsDead || IsClear;
 }
 
 void APlayerCharacter::ThrowBegin()

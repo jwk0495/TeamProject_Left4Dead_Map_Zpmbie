@@ -216,6 +216,9 @@ public:
 	FORCEINLINE uint8 GetIsSubWeapon() const { return CurHand == EHandType::SubWeapon; }
 	FORCEINLINE uint8 GetIsGrenade() const { return CurHand == EHandType::Grenade; }
 	FORCEINLINE uint8 GetIsHealPack() const { return CurHand == EHandType::HealPack; }
+
+	UFUNCTION(BlueprintCallable)
+	bool IsDeadOrClear();
 	
 
 // Recoil

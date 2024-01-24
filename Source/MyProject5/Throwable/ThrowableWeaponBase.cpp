@@ -10,6 +10,7 @@
 #include "public/ZombieBase.h"
 #include "Components/PointLightComponent.h"
 #include "Kismet/GameplayStatics.h"
+#include "../../../../../../../Source/Runtime/Engine/Classes/Sound/SoundAttenuation.h"
 
 // Sets default values
 AThrowableWeaponBase::AThrowableWeaponBase()
@@ -57,6 +58,13 @@ AThrowableWeaponBase::AThrowableWeaponBase()
 	{
 		ShakeClass = CameraShakeRef.Class;
 	}
+
+	// Sound Setting
+	static ConstructorHelpers::FObjectFinder<USoundAttenuation> SoundSettingRef(TEXT("/Script/Engine.SoundAttenuation'/Game/PKH/Sound/Att/ATT_Grenade.ATT_Grenade'"));
+	if (SoundSettingRef.Object)
+	{
+		SoundSetting = SoundSettingRef.Object;
+	}
 }
 
 void AThrowableWeaponBase::BeginPlay()
@@ -102,7 +110,7 @@ void AThrowableWeaponBase::Explode()
 	UGameplayStatics::PlayWorldCameraShake(GetWorld(), ShakeClass, GetActorLocation(), InnerShakeRadius, OuterShakeRadius);
 
 	// Sound
-	UGameplayStatics::PlaySound2D(GetWorld(), SFX_Explosion, 1.2f);
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SFX_Explosion, GetActorLocation(), FRotator::ZeroRotator, 1.2f, 1.0f, 0, SoundSetting);
 
 	// Destroy
 	FTimerHandle DestroyHandle;

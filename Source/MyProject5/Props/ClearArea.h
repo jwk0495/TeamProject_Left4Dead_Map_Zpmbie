@@ -21,9 +21,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class UStaticMeshComponent> MeshComponent;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	TObjectPtr<class UParticleSystemComponent> ParticleComponent;
-
 	UFUNCTION()
 	void OnBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
