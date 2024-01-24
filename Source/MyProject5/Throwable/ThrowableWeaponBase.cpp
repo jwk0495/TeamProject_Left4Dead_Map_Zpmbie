@@ -110,7 +110,7 @@ void AThrowableWeaponBase::Explode()
 	UGameplayStatics::PlayWorldCameraShake(GetWorld(), ShakeClass, GetActorLocation(), InnerShakeRadius, OuterShakeRadius);
 
 	// Sound
-	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SFX_Explosion, GetActorLocation(), FRotator::ZeroRotator, 1.2f, 1.0f, 0, SoundSetting);
+	UGameplayStatics::SpawnSoundAtLocation(GetWorld(), SFX_Explosion, GetActorLocation(), FRotator::ZeroRotator, 1.3f, 1.0f, 0, SoundSetting);
 
 	// Destroy
 	FTimerHandle DestroyHandle;

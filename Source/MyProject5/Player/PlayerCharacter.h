@@ -220,6 +220,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	bool IsDeadOrClear();
 	
+// Light
+protected:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float SpotLightIntensity = 15000;
 
 // Recoil
 protected:
@@ -308,6 +312,7 @@ protected:
 	bool IsClear = false;
 
 	bool IsAnnouncing = false;
+	bool IsStartDelay = true;
 	FVector InitialCameraLocation;
 	FVector DestinationLocation = FVector(37000, 8900, 1500);
 
@@ -374,49 +379,55 @@ protected:
 
 // Sound
 protected:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TArray<TObjectPtr<class USoundBase>> SFX_OnDamaged;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TArray<TObjectPtr<class USoundBase>> SFX_Reload;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_OnDie;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_Start;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_LowHealth;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_RifleFire;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_PistolFire;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_ReloadRifle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_ReloadPistol;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_ChangeToRifle;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_ChangeToPistol;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TObjectPtr<class USoundBase> SFX_Heal;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TObjectPtr<class USoundBase> SFX_HandChange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> BGM_Normal;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> BGM_GameOver;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> BGM_GameClear;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> BGM_Tank;
 
 	// Component

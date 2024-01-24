@@ -23,6 +23,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "Components/AudioComponent.h"
 #include "Props/HelicopterPawn.h"
+#include "Components/SpotLightComponent.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -271,9 +272,14 @@ void APlayerCharacter::BeginPlay()
 		WeaponComponent->SetWorldScale3D(MainWeapon->GetWeaponScale());
 	}
 
+	// Particle
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f));
+
+	// SpotLight
+	SpotLightComp->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
+	SpotLightComp->SetRelativeLocation(FVector(-14.25f, 5.33f, 1.05f));
 
 	// Sound
 	LowHealthComp = UGameplayStatics::SpawnSound2D(GetWorld(), SFX_LowHealth);
@@ -304,6 +310,7 @@ void APlayerCharacter::Tick(float Deltatime)
 		if (FVector::Distance(PlayerCamera->GetComponentLocation(), DestinationLocation) < 800.0f)
 		{
 			IsAnnouncing = false;
+			IsStartDelay = false;
 			PlayerCamera->SetWorldLocation(InitialCameraLocation);
 			AddControllerPitchInput(-10);
 			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
@@ -336,7 +343,7 @@ void APlayerCharacter::Move(const FInputActionValue& InputAction)
 
 void APlayerCharacter::Look(const FInputActionValue& InputAction)
 {
-	if (IsDead || IsAnnouncing)
+	if (IsDead || IsStartDelay)
 	{
 		return;
 	}
@@ -349,7 +356,7 @@ void APlayerCharacter::Look(const FInputActionValue& InputAction)
 
 void APlayerCharacter::Attack(const FInputActionValue& InputAction)
 {
-	if (IsMeleeAttackDelay || IsDead)
+	if (IsMeleeAttackDelay || IsDead || IsStartDelay)
 	{
 		return;
 	}
@@ -387,7 +394,7 @@ void APlayerCharacter::AttackEnd(const FInputActionValue& InputAction)
 
 void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 {
-	if (IsReloading || IsFiring || IsMeleeAttackDelay || IsDead)
+	if (IsReloading || IsFiring || IsMeleeAttackDelay || IsDead || IsStartDelay)
 	{
 		return;
 	}
@@ -425,6 +432,11 @@ void APlayerCharacter::Reload(const FInputActionValue& InputAction)
 
 void APlayerCharacter::CrouchStart(const FInputActionValue& InputAction)
 {
+	if (IsMeleeAttackDelay || IsDead || IsStartDelay)
+	{
+		return;
+	}
+
 	IsCrouching = true;
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
 	GetMesh()->AddRelativeLocation(FVector(0, 0, -40));
@@ -468,9 +480,14 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 		WeaponComponent->SetWorldScale3D(MainWeapon->GetWeaponScale());
 	}
 
+	// Particle
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f, 0.03f, 0.03f));
+
+	// SpotLight
+	SpotLightComp->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
+	SpotLightComp->SetRelativeLocation(FVector(-14.25f, 5.33f, 1.05f));
 
 	// Sound
 	UGameplayStatics::PlaySound2D(GetWorld(), SFX_ChangeToRifle);
@@ -501,9 +518,14 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 		WeaponComponent->SetWorldScale3D(SubWeapon->GetWeaponScale());
 	}
 
+	// Particle
 	GetMyController()->UpdateAmmoUIColor(CurHand);
 	GunShotParticleComponent->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	GunShotParticleComponent->SetRelativeScale3D(FVector(0.1f, 0.1f, 0.1f));
+
+	// SpotLight
+	SpotLightComp->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
+	SpotLightComp->SetRelativeLocation(FVector(-24, 0, -36));
 
 	// Sound
 	UGameplayStatics::PlaySound2D(GetWorld(), SFX_ChangeToPistol);
@@ -540,9 +562,12 @@ void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
 	{
 		WeaponComponent->SetStaticMesh(nullptr);
 	}
-	
 
+	// SpotLight
+	SpotLightComp->SetIntensity(0);
+	
 	GetMyController()->UpdateAmmoUIColor(CurHand);
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_HandChange, 2.0f);
 }
 
 void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction)
@@ -576,9 +601,12 @@ void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction
 	{
 		WeaponComponent->SetStaticMesh(nullptr);
 	}
-	
 
+	// SpotLight
+	SpotLightComp->SetIntensity(0);
+	
 	GetMyController()->UpdateAmmoUIColor(CurHand);
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_HandChange, 2.0f);
 }
 
 void APlayerCharacter::ZoomIn(const FInputActionValue& InputAction)
@@ -640,6 +668,7 @@ void APlayerCharacter::Heal(const FInputActionValue& InputAction)
 	WeaponComponent->SetStaticMesh(nullptr);
 
 	PlayMontage(HealMontage);
+	UGameplayStatics::PlaySound2D(GetWorld(), SFX_Heal);
 }
 
 void APlayerCharacter::HealEnd()

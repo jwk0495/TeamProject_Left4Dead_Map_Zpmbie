@@ -31,4 +31,6 @@ protected:
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<class UParticleSystemComponent> GunShotParticleComponent;
 
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<class USpotLightComponent> SpotLightComp;
 };

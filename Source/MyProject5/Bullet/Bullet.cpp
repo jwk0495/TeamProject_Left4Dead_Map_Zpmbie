@@ -69,7 +69,7 @@ void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 		UCapsuleComponent* ZombieColl = Cast<UCapsuleComponent>(OtherComp);
 		if (ZombieColl)
 		{
-			ZombieHeadHeight += ZombieColl->GetUnscaledCapsuleHalfHeight() * 0.45f;
+			ZombieHeadHeight += ZombieColl->GetUnscaledCapsuleHalfHeight() * 0.6f;
 		}
 
 		if (ImpactHeight >= ZombieHeadHeight) // Head Shot
@@ -77,7 +77,7 @@ void ABullet::OnOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherA
 			Zombie->OnDamaged(AttackPower * HeadShotRate); 
 			GEngine->AddOnScreenDebugMessage(-1, 2.0f, FColor::Red, TEXT("HeadShot"));
 
-			UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFX, SweepResult.ImpactPoint, FRotator(0));
+			UParticleSystemComponent* ParticleComp = UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), BloodVFX, SweepResult.ImpactPoint, FRotator(0), FVector(1, 1, 0.6f));
 			ParticleComp->CustomTimeDilation = 3;
 		}
 		else // Normal Shot

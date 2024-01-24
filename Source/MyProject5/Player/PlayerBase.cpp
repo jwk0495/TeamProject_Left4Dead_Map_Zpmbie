@@ -6,6 +6,7 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Particles/ParticleSystem.h"
 #include "Particles/ParticleSystemComponent.h"
+#include "Components/SpotLightComponent.h"
 
 // Sets default values
 APlayerBase::APlayerBase()
@@ -61,5 +62,12 @@ APlayerBase::APlayerBase()
 	{
 		GunShotParticleComponent->SetTemplate(ParticleRef.Object);
 	}
+
+	SpotLightComp = CreateDefaultSubobject<USpotLightComponent>(TEXT("SpotLight"));
+	SpotLightComp->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
+	SpotLightComp->SetRelativeLocation(FVector::ZeroVector);
+	SpotLightComp->SetIntensity(15000);
+	SpotLightComp->SetAttenuationRadius(1700);
+	SpotLightComp->SetOuterConeAngle(12);
 }
 
