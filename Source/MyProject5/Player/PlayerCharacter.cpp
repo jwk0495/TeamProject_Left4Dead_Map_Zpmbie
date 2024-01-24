@@ -280,6 +280,7 @@ void APlayerCharacter::BeginPlay()
 	// SpotLight
 	SpotLightComp->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	SpotLightComp->SetRelativeLocation(FVector(-14.25f, 5.33f, 1.05f));
+	SpotLightComp->SetIntensity(SpotLightIntensity);
 
 	// Sound
 	LowHealthComp = UGameplayStatics::SpawnSound2D(GetWorld(), SFX_LowHealth);
@@ -488,6 +489,7 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 	// SpotLight
 	SpotLightComp->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	SpotLightComp->SetRelativeLocation(FVector(-14.25f, 5.33f, 1.05f));
+	SpotLightComp->SetIntensity(SpotLightIntensity);
 
 	// Sound
 	UGameplayStatics::PlaySound2D(GetWorld(), SFX_ChangeToRifle);
@@ -526,6 +528,7 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 	// SpotLight
 	SpotLightComp->SetupAttachment(WeaponComponent, TEXT("FireSocket"));
 	SpotLightComp->SetRelativeLocation(FVector(-24, 0, -36));
+	SpotLightComp->SetIntensity(SpotLightIntensity);
 
 	// Sound
 	UGameplayStatics::PlaySound2D(GetWorld(), SFX_ChangeToPistol);
