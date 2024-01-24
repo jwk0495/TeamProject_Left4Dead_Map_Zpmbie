@@ -276,8 +276,6 @@ void APlayerCharacter::BeginPlay()
 	GunShotParticleComponent->SetRelativeScale3D(FVector(0.03f));
 
 	// Sound
-	UGameplayStatics::PlaySound2D(GetWorld(), SFX_Start);
-
 	LowHealthComp = UGameplayStatics::SpawnSound2D(GetWorld(), SFX_LowHealth);
 	LowHealthComp->Stop();
 	LowHealthComp->bAutoDestroy = false;
@@ -286,7 +284,7 @@ void APlayerCharacter::BeginPlay()
 	BgmComp->bAutoDestroy = false;
 
 	// Announce
-	/*InitialCameraLocation = PlayerCamera->GetComponentLocation();
+	InitialCameraLocation = PlayerCamera->GetComponentLocation();
 	PlayerCamera->AddRelativeLocation(FVector(-5000, 0, 4000));
 	AddControllerPitchInput(10);
 	GetCharacterMovement()->SetMovementMode(MOVE_None);
@@ -295,12 +293,12 @@ void APlayerCharacter::BeginPlay()
 	GetWorldTimerManager().SetTimer(AnnounceHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			IsAnnouncing = true;
-		}), 1.5f, false);*/
+		}), 1.5f, false);
 }
 
 void APlayerCharacter::Tick(float Deltatime)
 {
-	/*if (IsAnnouncing)
+	if (IsAnnouncing)
 	{
 		PlayerCamera->SetWorldLocation(FMath::VInterpTo(PlayerCamera->GetComponentLocation(), DestinationLocation, Deltatime, 0.4f));
 		if (FVector::Distance(PlayerCamera->GetComponentLocation(), DestinationLocation) < 800.0f)
@@ -311,8 +309,9 @@ void APlayerCharacter::Tick(float Deltatime)
 			GetCharacterMovement()->SetMovementMode(MOVE_Walking);
 
 			GetMyController()->EndAnnounce();
+			UGameplayStatics::PlaySound2D(GetWorld(), SFX_Start);
 		}
-	}*/
+	}
 }
 
 AMyPlayerController* APlayerCharacter::GetMyController()
@@ -852,6 +851,26 @@ void APlayerCharacter::PlayMontage(UAnimMontage* NewMontage)
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->StopAllMontages(0.0f);
 	AnimInstance->Montage_Play(NewMontage);
+}
+
+void APlayerCharacter::TankEncounter()
+{
+	BgmComp->Stop();
+	BgmComp->SetSound(BGM_Tank);
+	BgmComp->Play();
+}
+
+void APlayerCharacter::TankDie()
+{
+	BgmComp->FadeOut(4.0f, 0.001f);
+	
+	FTimerHandle Handle;
+	GetWorldTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
+		[&]() {
+			BgmComp->SetSound(BGM_Normal);
+			BgmComp->FadeIn(2.0f);
+		}), 4.0f, false);
+
 }
 
 void APlayerCharacter::SetShootAccurancy(float NewShootAccurancy)

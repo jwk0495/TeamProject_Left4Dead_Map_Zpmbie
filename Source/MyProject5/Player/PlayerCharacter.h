@@ -416,6 +416,9 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<class USoundBase> BGM_GameClear;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TObjectPtr<class USoundBase> BGM_Tank;
+
 	// Component
 	UPROPERTY()
 	TObjectPtr<class UAudioComponent> LowHealthComp;
@@ -426,5 +429,11 @@ protected:
 	// LowHealth Handle
 	FTimerHandle LowHealthHandle;
 
-	
+// Tank Zombie
+public:
+	UFUNCTION(BlueprintCallable)
+	void TankEncounter();
+
+	UFUNCTION(BlueprintCallable)
+	void TankDie();
 };
