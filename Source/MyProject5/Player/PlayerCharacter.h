@@ -223,7 +223,7 @@ public:
 // Light
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float SpotLightIntensity = 20000;
+	float SpotLightIntensity = 40000;
 
 // Recoil
 protected:
@@ -417,6 +417,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> SFX_HandChange;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
+	TObjectPtr<class USoundBase> SFX_NoAmmo;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Sound")
 	TObjectPtr<class USoundBase> BGM_Normal;

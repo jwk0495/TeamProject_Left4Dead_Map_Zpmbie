@@ -944,10 +944,12 @@ void APlayerCharacter::OneShot()
 {
 	if (CurHand == EHandType::MainWeapon && CurMainAmmo < 1)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_NoAmmo, 1.5f);
 		return;
 	}
 	if (CurHand == EHandType::SubWeapon && CurSubAmmo < 1)
 	{
+		UGameplayStatics::PlaySound2D(GetWorld(), SFX_NoAmmo, 1.5f);
 		return;
 	}
 	
