@@ -1216,6 +1216,12 @@ void APlayerCharacter::GameClear()
 	BgmComp->SetSound(BGM_GameClear);
 	BgmComp->Play();
 
+	if (LowHealthHandle.IsValid())
+	{
+		GetWorldTimerManager().ClearTimer(LowHealthHandle);
+		LowHealthComp->Stop();
+	}
+
 	FTimerHandle ExitHandle;
 	GetWorldTimerManager().SetTimer(ExitHandle, FTimerDelegate::CreateLambda(
 		[&]() {

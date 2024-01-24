@@ -223,7 +223,7 @@ public:
 // Light
 protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	float SpotLightIntensity = 15000;
+	float SpotLightIntensity = 20000;
 
 // Recoil
 protected:
