@@ -116,6 +116,7 @@ protected:
 
 public:
 	void HealEnd();
+	void HealCancle();
 
 protected:
 	void MeleeAttack(const FInputActionValue& InputAction);

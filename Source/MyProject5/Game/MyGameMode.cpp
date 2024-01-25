@@ -2,6 +2,8 @@
 
 
 #include "Game/MyGameMode.h"
+#include "Kismet/GameplayStatics.h"
+#include "Game/SaveGame_BestTime.h"
 
 AMyGameMode::AMyGameMode()
 {
@@ -16,14 +18,54 @@ AMyGameMode::AMyGameMode()
 	{
 		PlayerControllerClass = ControllerRef.Class;
 	}
+
+	static ConstructorHelpers::FClassFinder<USaveGame_BestTime> BestTimeClassRef(TEXT("/Script/MyProject5.SaveGame_BestTime"));
+	if (BestTimeClassRef.Class)
+	{
+		BestTimeClass = BestTimeClassRef.Class;
+	}
 }
 
 void AMyGameMode::BeginPlay()
 {
 	// Add time per second
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
+	GetWorld()->GetTimerManager().SetTimer(TimeHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			SurvivalTime++;
 		}),1.0f, true, 1.0f);
+
+	LoadGame();
+}
+
+void AMyGameMode::GameClear()
+{
+	GetWorldTimerManager().ClearTimer(TimeHandle);
+	SaveGame();
+}
+
+void AMyGameMode::LoadGame()
+{
+	if (UGameplayStatics::DoesSaveGameExist(BestTimeSlotName, BestTimeSlotIdx))
+	{
+		USaveGame_BestTime* BT = Cast<USaveGame_BestTime>(UGameplayStatics::LoadGameFromSlot(BestTimeSlotName, BestTimeSlotIdx));
+		BestTime = BT->GetBestSeconds();
+	}
+	else
+	{
+		BestTime = 99999;
+	}
+}
+
+void AMyGameMode::SaveGame()
+{
+	if (SurvivalTime >= BestTime)
+	{
+		return;
+	}
+	BestTime = SurvivalTime;
+	IsBest = true;
+
+	USaveGame_BestTime* BT = Cast<USaveGame_BestTime>(UGameplayStatics::CreateSaveGameObject(BestTimeClass));
+	BT->SetBestSeconds(BestTime);
+	UGameplayStatics::SaveGameToSlot(BT, BestTimeSlotName, BestTimeSlotIdx);
 }

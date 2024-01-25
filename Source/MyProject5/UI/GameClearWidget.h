@@ -27,11 +27,14 @@ protected:
 	TObjectPtr<class UTextBlock> KillCountText;
 
 	UPROPERTY()
+	TObjectPtr<class UTextBlock> BestTimeText;
+
+	UPROPERTY()
 	TObjectPtr<class UButton> RestartButton;
 
 	UPROPERTY()
 	TObjectPtr<class UButton> ExitButton;
 
 public:
-	void SetClearUI(int32 Seconds, int32 KillCount);
+	void SetClearUI(int32 Seconds, int32 KillCount, bool IsBest);
 };

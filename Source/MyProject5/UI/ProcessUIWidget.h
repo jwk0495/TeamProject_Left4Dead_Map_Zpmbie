@@ -37,4 +37,6 @@ protected:
 
 public:
 	void SetProcessData(FText Text, float Time);
+
+	void StopProcess();
 };

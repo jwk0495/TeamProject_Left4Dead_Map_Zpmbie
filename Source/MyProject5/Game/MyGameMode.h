@@ -23,10 +23,34 @@ protected:
 	int32 SurvivalTime = 0;
 	int32 KillCount = 0;
 
+	FTimerHandle TimeHandle;
+
 public:
 	UFUNCTION(BlueprintCallable)
 	FORCEINLINE void KillCountPlus() { KillCount++; }
 
 	FORCEINLINE int32 GetSurvivalTime() const { return SurvivalTime; }
 	FORCEINLINE int32 GetKillCount() const { return KillCount; }
+
+	void GameClear();
+
+// Save
+protected:
+	UPROPERTY()
+	TSubclassOf<class USaveGame_BestTime> BestTimeClass;
+
+	FString BestTimeSlotName = TEXT("BestTime");
+	int32 BestTimeSlotIdx = 1;
+
+	int32 BestTime;
+
+	void LoadGame();
+	void SaveGame();
+
+// Best
+protected:
+	bool IsBest = false;
+
+public:
+	FORCEINLINE bool IsBestTime() { return IsBest; }
 };

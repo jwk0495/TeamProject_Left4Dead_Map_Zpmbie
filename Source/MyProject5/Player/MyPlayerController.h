@@ -88,7 +88,9 @@ protected:
 public:
 	void InitWidget(class APlayerCharacter* InPlayerCharacter);
 
+	FTimerHandle ProcessHandle;
 	void ShowProcessUI(FText Text, float Time);
+	void StopProcessUI();
 
 	void UpdateAmmoUIColor(EHandType NewHandType);
 

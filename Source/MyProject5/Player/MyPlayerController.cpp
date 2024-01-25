@@ -152,12 +152,22 @@ void AMyPlayerController::ShowProcessUI(FText Text, float Time)
 	ProcessUIWidget->SetVisibility(ESlateVisibility::Visible);
 	ProcessUIWidget->SetProcessData(Text, Time);
 
-	FTimerHandle Handle;
-	GetWorld()->GetTimerManager().SetTimer(Handle, FTimerDelegate::CreateLambda(
+	GetWorld()->GetTimerManager().SetTimer(ProcessHandle, FTimerDelegate::CreateLambda(
 		[&]() {
 			ProcessUIWidget->SetVisibility(ESlateVisibility::Hidden);
 		}
 	), Time, false);
+}
+
+void AMyPlayerController::StopProcessUI()
+{
+	if (ProcessHandle.IsValid())
+	{
+		GetWorld()->GetTimerManager().ClearTimer(ProcessHandle);
+	}
+
+	ProcessUIWidget->StopProcess();
+	ProcessUIWidget->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void AMyPlayerController::UpdateAmmoUIColor(EHandType NewHandType)
@@ -199,7 +209,7 @@ void AMyPlayerController::GameClear()
 
 	// Show GameClear UI
 	AMyGameMode* Mode = Cast<AMyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
-	GameClearUIWidget->SetClearUI(Mode->GetSurvivalTime(), Mode->GetKillCount());
+	GameClearUIWidget->SetClearUI(Mode->GetSurvivalTime(), Mode->GetKillCount(), Mode->IsBestTime());
 	GameClearUIWidget->SetVisibility(ESlateVisibility::Visible);
 
 	// InputMode change

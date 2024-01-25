@@ -24,6 +24,7 @@
 #include "Components/AudioComponent.h"
 #include "Props/HelicopterPawn.h"
 #include "Components/SpotLightComponent.h"
+#include "../Game/MyGameMode.h"
 
 APlayerCharacter::APlayerCharacter()
 {
@@ -330,6 +331,11 @@ AMyPlayerController* APlayerCharacter::GetMyController()
 
 void APlayerCharacter::Move(const FInputActionValue& InputAction)
 {
+	if (IsHealing)
+	{
+		HealCancle();
+	}
+
 	FVector2D InputVec = InputAction.Get<FVector2D>();
 
 	const FRotator Rotator = Controller->GetControlRotation();
@@ -437,6 +443,10 @@ void APlayerCharacter::CrouchStart(const FInputActionValue& InputAction)
 	{
 		return;
 	}
+	if (IsHealing)
+	{
+		HealCancle();
+	}
 
 	IsCrouching = true;
 	GetCharacterMovement()->MaxWalkSpeed = GetMoveSpeed();
@@ -463,9 +473,13 @@ void APlayerCharacter::HandChangeToMain(const FInputActionValue& InputAction)
 	{
 		return;
 	}
-	if (IsHealing || IsDead)
+	if (IsDead)
 	{
 		return;
+	}
+	if (IsHealing)
+	{
+		HealCancle();
 	}
 
 	IsReloading = false;
@@ -501,9 +515,13 @@ void APlayerCharacter::HandChangeToSub(const FInputActionValue& InputAction)
 	{
 		return;
 	}
-	if (IsHealing || IsDead)
+	if (IsDead)
 	{
 		return;
+	}
+	if (IsHealing)
+	{
+		HealCancle();
 	}
 
 	IsReloading = false;
@@ -540,9 +558,13 @@ void APlayerCharacter::HandChangeToGrenade(const FInputActionValue& InputAction)
 	{
 		return;
 	}
-	if (IsHealing || IsDead)
+	if (IsDead)
 	{
 		return;
+	}
+	if (IsHealing)
+	{
+		HealCancle();
 	}
 
 	IsReloading = false;
@@ -579,9 +601,13 @@ void APlayerCharacter::HandChangeToHealPack(const FInputActionValue& InputAction
 	{
 		return;
 	}
-	if (IsHealing || IsDead)
+	if (IsDead)
 	{
 		return;
+	}
+	if (IsHealing)
+	{
+		HealCancle();
 	}
 
 	IsReloading = false;
@@ -661,9 +687,6 @@ void APlayerCharacter::Heal(const FInputActionValue& InputAction)
 	}
 
 	IsHealing = true;
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
-	SetRemainHealPack(RemainHealPack - 1);
-
 	ShowProcessUI();
 
 	PlayerCamera->AddRelativeLocation(FVector(-200, 0, 80));
@@ -681,11 +704,25 @@ void APlayerCharacter::HealEnd()
 	PlayerCamera->AddRelativeLocation(FVector(200, 0, -80));
 	bUseControllerRotationYaw = true;
 
+	SetRemainHealPack(RemainHealPack - 1);
+
 	if (RemainHealPack > 0)
 	{
 		WeaponComponent->SetStaticMesh(HealPackHand->GetWeaponStaticMesh());
 	}
-	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
+}
+
+void APlayerCharacter::HealCancle()
+{
+	IsHealing = false;
+	PlayerCamera->AddRelativeLocation(FVector(200, 0, -80));
+	bUseControllerRotationYaw = true;
+	WeaponComponent->SetStaticMesh(HealPackHand->GetWeaponStaticMesh());
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	AnimInstance->StopAllMontages(0.0f);
+
+	GetMyController()->StopProcessUI();
 }
 
 void APlayerCharacter::MeleeAttack(const FInputActionValue& InputAction)
@@ -1207,10 +1244,16 @@ void APlayerCharacter::GameClear()
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	AnimInstance->StopAllMontages(0.0f);
 	WeaponComponent->SetStaticMesh(nullptr);
+	SpotLightComp->SetIntensity(0);
 
 	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
 	StopShoot();
 
+	AMyGameMode* GameMode = Cast<AMyGameMode>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode)
+	{
+		GameMode->GameClear();
+	}
 	AMyPlayerController* Mycontroller = GetMyController();
 	Mycontroller->GameClear();
 
